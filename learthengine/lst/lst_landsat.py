@@ -53,6 +53,8 @@ from learthengine import prepro
 # --------------------------------------------------
 # User Requirements
 # --------------------------------------------------
+sensor = 'L8'
+
 stm = False  # True = STMs False = single scene
 
 select_parameters = ['LST']
@@ -95,7 +97,7 @@ epsilon_v = 0.985
 epsilon_s = 0.97
 epsilon_w = 0.99
 
-t_threshold = 5
+t_threshold = 4
 
 '''
 cs_l8 = [0.04019, 0.02916, 1.01523,
@@ -558,7 +560,8 @@ imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l5) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 #imgCol_L5_SR = imgCol_L5_SR.map(fun_bands_l57)
 
@@ -577,7 +580,8 @@ imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l7) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 #imgCol_L7_SR = imgCol_L7_SR.map(fun_bands_l57)
 
@@ -596,7 +600,8 @@ imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l8) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 #imgCol_L8_SR = imgCol_L8_SR.map(fun_bands_l8)
 
@@ -656,8 +661,19 @@ imgCol_L7_SR = imgCol_L7_SR.map(fun_gamma_l7)
 imgCol_L8_SR = imgCol_L8_SR.map(fun_gamma_l8)
 
 # Merge Collections
-imgCol_merge = imgCol_L8_SR.merge(imgCol_L7_SR).merge(imgCol_L5_SR)
-imgCol_merge = imgCol_merge.sort('system:time_start')
+if sensor == 'LS':
+    imgCol_merge = imgCol_L8_SR.merge(imgCol_L7_SR).merge(imgCol_L5_SR)
+    imgCol_merge = imgCol_merge.sort('system:time_start')
+elif sensor == 'L8':
+    imgCol_merge = imgCol_L8_SR
+elif sensor == 'L7':
+    imgCol_merge = imgCol_L7_SR
+elif sensor == 'L5':
+    imgCol_merge = imgCol_L5_SR
+else:
+    imgCol_SR = None
+    print('False SENSOR selection')
+
 
 # Parameters and Indices
 imgCol_merge = imgCol_merge.map(fun_ndvi)
@@ -729,6 +745,7 @@ else:
     dates = get_dates(imgCol_merge)
     range = dates.distinct()
     newcol = mosaic(imgCol_merge.select(select_parameters), range)  # select to avoid incompabilities with two imgCols (e.g. Red Edge)
+    newcol = newcol.sort('system:time_start')
 
     for parameter in select_parameters:
         lyr = layerstack(newcol.select(parameter))
@@ -740,7 +757,7 @@ else:
 
         lyr = lyr.toInt16()
 
-        out_file = parameter + '_layerstack_' + roi_filename + '_' + parameter + '_' + str(year_start) + '-' +\
+        out_file = sensor + '_' + parameter + '_layerstack_' + roi_filename + '_' + parameter + '_' + str(year_start) + '-' +\
                    str(year_end) + '_' + str(month_start) + '-' + str(month_end)
 
         out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,
