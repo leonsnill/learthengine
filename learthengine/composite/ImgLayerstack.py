@@ -1,18 +1,19 @@
 import ee
 ee.Initialize()
 from learthengine import prepro
+from learthengine import generals
 
 
-SENSOR = 'SL'
+SENSOR = 'S2_SR'
 BANDS = ['NDVI']
-PIXEL_RESOLUTION = 30
-year_min, year_max = 2017, 2019
-month_min, month_max = 1, 12
+PIXEL_RESOLUTION = 10
+YEAR_MIN, YEAR_MAX = 2020, 2020
+MONTH_MIN, MONTH_MAX = 1, 12
 CLOUD_COVER = 60
-masks = ['cloud', 'cshadow', 'snow']
-ROI = ee.Geometry.Rectangle([9.4, 9.26, 9.45, 9.3])
-ROI_NAME = 'NIGERIA'
-EPSG = 'EPSG:32632'
+MASKS = ['cloud', 'cshadow', 'snow']  # only for Landsat
+ROI = ee.Geometry.Rectangle([23.1127, -19.279, 23.4295, -19.0843])
+ROI_NAME = 'OKV'
+EPSG = 'UTM'  # UTM for automatic UTM Zone WGS84
 
 
 # Functions
@@ -59,7 +60,7 @@ dict_mask = {'cloud': ee.Number(2).pow(5).int(),
              'cshadow': ee.Number(2).pow(3).int(),
              'snow': ee.Number(2).pow(4).int()}
 
-sel_masks = [dict_mask[x] for x in masks]
+sel_masks = [dict_mask[x] for x in MASKS]
 bits = ee.Number(1)
 
 for m in sel_masks:
@@ -67,8 +68,8 @@ for m in sel_masks:
 
 imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
     .filterBounds(ROI) \
-    .filter(ee.Filter.calendarRange(year_min, year_max, 'year')) \
-    .filter(ee.Filter.calendarRange(month_min, month_max, 'month')) \
+    .filter(ee.Filter.calendarRange(YEAR_MIN, YEAR_MAX, 'year')) \
+    .filter(ee.Filter.calendarRange(MONTH_MIN, MONTH_MAX, 'month')) \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l5) \
     .map(prepro.mask_landsat_sr(bits)) \
@@ -77,8 +78,8 @@ imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
 
 imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR') \
     .filterBounds(ROI) \
-    .filter(ee.Filter.calendarRange(year_min, year_max, 'year')) \
-    .filter(ee.Filter.calendarRange(month_min, month_max, 'month')) \
+    .filter(ee.Filter.calendarRange(YEAR_MIN, YEAR_MAX, 'year')) \
+    .filter(ee.Filter.calendarRange(MONTH_MIN, MONTH_MAX, 'month')) \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l7) \
     .map(prepro.mask_landsat_sr(bits)) \
@@ -87,8 +88,8 @@ imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR') \
 
 imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
     .filterBounds(ROI) \
-    .filter(ee.Filter.calendarRange(year_min, year_max, 'year')) \
-    .filter(ee.Filter.calendarRange(month_min, month_max, 'month')) \
+    .filter(ee.Filter.calendarRange(YEAR_MIN, YEAR_MAX, 'year')) \
+    .filter(ee.Filter.calendarRange(MONTH_MIN, MONTH_MAX, 'month')) \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l8) \
     .map(prepro.mask_landsat_sr(bits)) \
@@ -97,9 +98,10 @@ imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
 
 imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
     .filterBounds(ROI) \
-    .filter(ee.Filter.calendarRange(year_min, year_max, 'year')) \
-    .filter(ee.Filter.calendarRange(month_min, month_max, 'month')) \
+    .filter(ee.Filter.calendarRange(YEAR_MIN, YEAR_MAX, 'year')) \
+    .filter(ee.Filter.calendarRange(MONTH_MIN, MONTH_MAX, 'month')) \
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_COVER)) \
+    .map(prepro.mask_s2_cdi(0.5)) \
     .map(prepro.rename_bands_s2) \
     .map(prepro.mask_s2_scl) \
     .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
@@ -140,14 +142,20 @@ dates = get_dates(imgCol_SR)
 range = dates.distinct()
 newcol = mosaic(imgCol_SR.select(BANDS), range)  # select to avoid incompabilities with two imgCols (e.g. Red Edge)
 
+
+# find epsg
+if EPSG == 'UTM':
+    EPSG = generals.find_utm(ROI)
+
+
 for band in BANDS:
     lyr = layerstack(newcol.select(band))
 
     lyr = lyr.multiply(10000)
     lyr = lyr.toInt16()
 
-    out_file = SENSOR + '_layerstack_' + ROI_NAME + '_' + band + '_' + str(year_min) + '-' + str(year_max) + \
-               '_' + str(month_min) + '-' + str(month_max)
+    out_file = SENSOR + '_layerstack_' + ROI_NAME + '_' + band + '_' + str(YEAR_MIN) + '-' + str(YEAR_MAX) + \
+               '_' + str(MONTH_MIN) + '-' + str(MONTH_MAX)
 
     out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,
                                         scale=PIXEL_RESOLUTION,

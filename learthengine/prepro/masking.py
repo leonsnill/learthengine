@@ -27,7 +27,16 @@ def mask_s2_cdi(cdi=0.5):
     def wrap(img):
         img_cdi = ee.Algorithms.Sentinel2.CDI(img)
         mask = img_cdi.lt(cdi).rename("mask")
-        img.addBands(mask).updateMask(mask) \
+        return img.addBands(mask).updateMask(mask) \
            .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap
+
+
+def mask_s2(img):
+    qa = img.select('QA60')
+    cloudBitMask = ee.Number(2).pow(10).int()
+    cirrusBitMask = ee.Number(2).pow(11).int()
+    mask = qa.bitwiseAnd(cloudBitMask).eq(0).And(qa.bitwiseAnd(cirrusBitMask).eq(0)).rename('CLOUD')
+    return img.addBands(mask).updateMask(mask)\
+              .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
 
