@@ -59,20 +59,20 @@ import numpy as np
 SENSOR = 'LS'
 CLOUD_COVER = 50
 BANDS = ['TCB', 'TCG', 'TCW']  # 'B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'  # 'TCB', 'TCG', 'TCW'
-PIXEL_RESOLUTION = 5000
+PIXEL_RESOLUTION = 30
 
 RESAMPLE = None #'bilinear'
 REDUCE_RESOLUTION = None #ee.Reducer.mean().unweighted()
 NATIVE_RESOLUTION = 30
 
-#ROI = ee.Geometry.Rectangle([-9.3741, 43.8793, 3.5567, 40.8608])
-
+ROI = ee.Geometry.Rectangle([13.377, 52.461, 13.504, 52.543])
+'''
 ROI = ee.Geometry.Polygon([[-11,32.679],
                            [30.344,32.679],
                            [30.344,72.414],
                            [-11,72.414],
                            [-11,32.679]])
-'''
+
 ROI = ee.Geometry.Polygon([[-9.892,35.884],
                            [3.532,35.884],
                            [3.532,44.051],
@@ -84,8 +84,8 @@ ROI = ee.Geometry.Polygon([[-9.892,35.884],
 # 32.4894, 30.0307, 29.8332, 31.6516 NIL
 # -9.355, 43.845, 3.399, 41.363 CANTABRIA
 '''
-ROI_NAME = 'EUROPE'
-EPSG = 'EPSG:3035'
+ROI_NAME = 'BERLIN'
+EPSG = 'EPSG:32633'
 
 
 # --------------------------------------------------
@@ -103,7 +103,7 @@ if MONTHLY:
 else:
        TARGET_DOY_client = [197]
        # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-       DOY_RANGE = 40
+       DOY_RANGE = 90
        DOY_VS_YEAR = 20
 
        REQ_DISTANCE_client = 50
@@ -113,10 +113,10 @@ else:
        W_YEARSCORE_client = 0
        W_CLOUDSCORE_client = 0.3
 
-       SCORE = 'STM_STD'
+       SCORE = 'STM_MAX'
        BANDNAME = 'TC'
 
-       STMs = [ee.Reducer.stdDev()]
+       STMs = [ee.Reducer.max()]
 
 
 # ====================================================================================================#
@@ -348,13 +348,13 @@ def fun_ndvi(img):
        #ndvi = ndvi.multiply(10000)
        return img.addBands(ndvi)
 
-
+# Gao 1996
 def fun_ndwi1(img):
        ndwi = img.normalizedDifference(['NIR', 'SWIR1']).rename('NDWI1')
        #ndwi = ndwi.multiply(10000)
        return img.addBands(ndwi)
 
-
+# McFeeters 1996
 def fun_ndwi2(img):
        ndwi = img.normalizedDifference(['G', 'NIR']).rename('NDWI2')
        #ndwi = ndwi.multiply(10000)

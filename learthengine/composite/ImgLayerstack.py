@@ -6,13 +6,13 @@ from learthengine import prepro
 SENSOR = 'SL'
 BANDS = ['NDVI']
 PIXEL_RESOLUTION = 30
-year_min, year_max = 2016, 2019
+year_min, year_max = 2017, 2019
 month_min, month_max = 1, 12
 CLOUD_COVER = 60
 masks = ['cloud', 'cshadow', 'snow']
-ROI = ee.Geometry.Rectangle([-133.87, 68.38, -133.25, 68.25])
-ROI_NAME = 'INUVIK'
-EPSG = 'EPSG:32608'
+ROI = ee.Geometry.Rectangle([9.4, 9.26, 9.45, 9.3])
+ROI_NAME = 'NIGERIA'
+EPSG = 'EPSG:32632'
 
 
 # Functions
@@ -72,7 +72,8 @@ imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l5) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR') \
     .filterBounds(ROI) \
@@ -81,7 +82,8 @@ imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR') \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l7) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
     .filterBounds(ROI) \
@@ -90,7 +92,8 @@ imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
     .map(prepro.rename_bands_l8) \
     .map(prepro.mask_landsat_sr(bits)) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
+    .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
     .filterBounds(ROI) \
@@ -99,7 +102,7 @@ imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_COVER)) \
     .map(prepro.rename_bands_s2) \
     .map(prepro.mask_s2_scl) \
-    .map(prepro.scale_img(0.0001))
+    .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
 
 # --------------------------------------------------
@@ -152,3 +155,4 @@ for band in BANDS:
                                         region=ROI['coordinates'][0],
                                         crs=EPSG)
     process = ee.batch.Task.start(out)
+
