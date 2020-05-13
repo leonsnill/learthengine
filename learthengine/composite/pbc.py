@@ -50,7 +50,6 @@ from learthengine import generals
 from learthengine import prepro
 from learthengine import composite
 
-import math
 import datetime
 import numpy as np
 
