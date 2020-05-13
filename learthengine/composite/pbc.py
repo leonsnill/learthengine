@@ -206,7 +206,7 @@ for year in TARGET_YEARS:
             .filterBounds(ROI) \
             .filter(time_filter) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_COVER)) \
-            .map(prepro.mask_s2_cdi(0.5)) \
+            .map(prepro.mask_s2_cdi(-0.5)) \
             .map(prepro.rename_bands_s2) \
             .map(prepro.mask_s2) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
@@ -215,7 +215,7 @@ for year in TARGET_YEARS:
             .filterBounds(ROI) \
             .filter(time_filter) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_COVER)) \
-            .map(prepro.mask_s2_cdi(0.5)) \
+            .map(prepro.mask_s2_cdi(-0.5)) \
             .map(prepro.rename_bands_s2) \
             .map(prepro.mask_s2_scl) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))

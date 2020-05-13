@@ -23,7 +23,7 @@ def mask_s2_scl(img):
               .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
 
 
-def mask_s2_cdi(cdi=0.5):
+def mask_s2_cdi(cdi=-0.5):
     def wrap(img):
         img_cdi = ee.Algorithms.Sentinel2.CDI(img)
         mask = img_cdi.lt(cdi).rename("mask")
