@@ -5,14 +5,14 @@ from learthengine import generals
 
 
 SENSOR = 'S2_SR'
-BANDS = ['NDVI']
+BANDS = ['TCW', 'TCG','TCB', 'NDVI']
 PIXEL_RESOLUTION = 10
-YEAR_MIN, YEAR_MAX = 2020, 2020
+YEAR_MIN, YEAR_MAX = 2018, 2020
 MONTH_MIN, MONTH_MAX = 1, 12
 CLOUD_COVER = 60
 MASKS = ['cloud', 'cshadow', 'snow']  # only for Landsat
-ROI = ee.Geometry.Rectangle([23.1127, -19.279, 23.4295, -19.0843])
-ROI_NAME = 'OKV'
+ROI = ee.Geometry.Rectangle([23.7333,35.4651, 23.8569,35.5367])
+ROI_NAME = 'CRETE_NW'
 EPSG = 'UTM'  # UTM for automatic UTM Zone WGS84
 
 
