@@ -10,5 +10,5 @@ A succsessful installation of the Earth Engine Python API is required (see https
 #### 2) Install as package
 
 ```
-pip install --upgrade git+https://github.com/leonsnill/eopy.git
+pip install --upgrade git+https://github.com/leonsnill/learthengine.git
 ```
