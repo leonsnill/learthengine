@@ -4,15 +4,15 @@ from learthengine import prepro
 from learthengine import generals
 
 
-SENSOR = 'S2_SR'
-BANDS = ['TCW', 'TCG','TCB', 'NDVI']
+SENSOR = 'SL'
+BANDS = ['NDVI']
 PIXEL_RESOLUTION = 10
-YEAR_MIN, YEAR_MAX = 2018, 2020
-MONTH_MIN, MONTH_MAX = 1, 12
+YEAR_MIN, YEAR_MAX = 2019, 2019
+MONTH_MIN, MONTH_MAX = 3, 11
 CLOUD_COVER = 60
 MASKS = ['cloud', 'cshadow', 'snow']  # only for Landsat
-ROI = ee.Geometry.Rectangle([23.7333,35.4651, 23.8569,35.5367])
-ROI_NAME = 'CRETE_NW'
+ROI = ee.Geometry.Rectangle([9.1552,9.1258, 9.6036,9.6312])
+ROI_NAME = 'NIGERIA'
 EPSG = 'UTM'  # UTM for automatic UTM Zone WGS84
 
 
@@ -101,7 +101,7 @@ imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
     .filter(ee.Filter.calendarRange(YEAR_MIN, YEAR_MAX, 'year')) \
     .filter(ee.Filter.calendarRange(MONTH_MIN, MONTH_MAX, 'month')) \
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', CLOUD_COVER)) \
-    .map(prepro.mask_s2_cdi(0.5)) \
+    .map(prepro.mask_s2_cdi(-0.5)) \
     .map(prepro.rename_bands_s2) \
     .map(prepro.mask_s2_scl) \
     .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))

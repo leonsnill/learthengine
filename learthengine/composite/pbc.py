@@ -58,24 +58,26 @@ import numpy as np
 # USER INPUTS
 # ====================================================================================================#
 
-SENSOR = 'L8'                           # either (S2_L1C, S2_L2A, LS, L5, L7, L8, SL)
+SENSOR = 'LS'                           # either (S2_L1C, S2_L2A, LS, L5, L7, L8, SL)
 CLOUD_COVER = 60                       # maximum Cloud Cover
-BANDS = ['TCW']                # spectral features to calculate
+BANDS = ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']                         # spectral features to calculate
 PIXEL_RESOLUTION = 30                   # target spatial (pixel) resolution
 MASKS = ['cloud', 'cshadow', 'snow']    # !only for Landsat!, default = ['cloud', 'cshadow', 'snow']
 
-ROI = ee.Geometry.Rectangle([13.377, 52.461, 13.504, 52.543])
-ROI_NAME = 'BERLIN'
+ROI = ee.Geometry.Rectangle([38.596,8.79,38.965,9.151])
+ROI_NAME = 'ADDIS'
 EPSG = 'UTM'                            # 'UTM' will automatically find UTM Zone of ROI, otherwise specify EPSG code
 
-SCORE = 'MED'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
+NOBS = True                           # add layer of number of observations per pixel
+
+SCORE = 'MEDIAN'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
                                         # maximum NDVI composite ('MAX_NDVI') or any string used as name for STMs
 STMs = [ee.Reducer.median()]                           # None or list of metrics to calculate, e.g. [ee.Reducer.mean()]
 
-TARGET_YEARS = [2018]
-SURR_YEARS = 2
-TARGET_DOYS = [1]                       # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-DOY_RANGE = 30                          # +- TARGET_DOY
+TARGET_YEARS = [2020]
+SURR_YEARS = 1
+TARGET_DOYS = [182]                       # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+DOY_RANGE = 182                          # +- TARGET_DOY
 DOY_VS_YEAR = 20                        # DOY offset from target DOY at which a one year offset has the same score
 
 MAX_CLOUDDISTANCE = 50
@@ -85,7 +87,7 @@ WEIGHT_DOY = 0.6
 WEIGHT_YEAR = 0.1
 WEIGHT_CLOUD = 0.3
 
-BANDNAME = 'TCW'
+BANDNAME = 'VIIR'
 
 
 
@@ -283,7 +285,7 @@ for year in TARGET_YEARS:
             # --------------------------------------------------
             # calculate DOY-score at maximum DOY vs Year threshold
             doyscore_offset = composite.doyscore_offset(iter_target_doy - DOY_VS_YEAR,
-                                                        iter_target_doy, doy_std_client)
+                                                            iter_target_doy, doy_std_client)
             doyscore_offset_obj = ee.Number(doyscore_offset)
             target_years_obj = ee.Number(year)
 
@@ -304,37 +306,45 @@ for year in TARGET_YEARS:
 
             imgCol_SR = imgCol_SR.map(composite.score(w_doyscore, w_yearscore, w_cloudscore))
 
-            composite = imgCol_SR.qualityMosaic(SCORE)
-            composite = composite.select(BANDS)
-            composite = composite.multiply(10000)
-            composite = composite.int16()
+            img_composite = imgCol_SR.qualityMosaic(SCORE)
+            img_composite = img_composite.select(BANDS)
+            img_composite = img_composite.multiply(10000)
+            img_composite = img_composite.int16()
 
             if STMs is not None:
                 for i in range(len(STMs)):
-                    composite = composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
-                                                            .reduce(STMs[i])).int16())
+                    img_composite = img_composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
+                                                                    .reduce(STMs[i])).int16())
 
         elif SCORE == 'MAXNDVI':
-            composite = imgCol_SR.qualityMosaic('NDVI')
-            composite = composite.select(BANDS)
-            composite = composite.multiply(10000)
-            composite = composite.int16()
+            img_composite = imgCol_SR.qualityMosaic('NDVI')
+            img_composite = img_composite.select(BANDS)
+            img_composite = img_composite.multiply(10000)
+            img_composite = img_composite.int16()
 
             if STMs is not None:
                 for i in range(len(STMs)):
-                    composite = composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
-                                                            .reduce(STMs[i])).int16())
+                    img_composite = img_composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
+                                                                    .reduce(STMs[i])).int16())
 
         else:
             if STMs is not None:
                 for i in range(len(STMs)):
                     if i == 0:
-                        composite = ee.Image(imgCol_SR.select(BANDS).reduce(STMs[i]))
+                        img_composite = ee.Image(imgCol_SR.select(BANDS).reduce(STMs[i]))
                     else:
-                        composite = composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
-                                                                .reduce(STMs[i])))
+                        img_composite = img_composite.addBands(ee.Image(imgCol_SR.select(BANDS) \
+                                                                        .reduce(STMs[i])))
 
-                composite = composite.multiply(10000)
+                img_composite = img_composite.multiply(10000)
+
+        if NOBS:
+            nobs = imgCol_SR.select(BANDS[0]).count().rename('NOBS')
+            nobs = nobs.int16()
+            try:
+                img_composite = img_composite.addBands(nobs)
+            except Exception:
+                img_composite = nobs
 
         if SURR_YEARS == 0:
             year_filename = str(year)
@@ -345,7 +355,7 @@ for year in TARGET_YEARS:
                    str(PIXEL_RESOLUTION) + 'm_' + str(iter_target_doy) + '-' + str(DOY_RANGE) + \
                     '_' + str(year) + '-' + str(SURR_YEARS)
 
-        out = ee.batch.Export.image.toDrive(image=composite.toInt16(), description=out_file,
+        out = ee.batch.Export.image.toDrive(image=img_composite.toInt16(), description=out_file,
                                             scale=PIXEL_RESOLUTION,
                                             maxPixels=1e13,
                                             region=ROI['coordinates'][0],
