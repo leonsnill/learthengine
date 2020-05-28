@@ -4,15 +4,15 @@ from learthengine import prepro
 from learthengine import generals
 
 
-SENSOR = 'SL'
+SENSOR = 'S2_SR'
 BANDS = ['NDVI']
 PIXEL_RESOLUTION = 10
 YEAR_MIN, YEAR_MAX = 2019, 2019
 MONTH_MIN, MONTH_MAX = 3, 11
 CLOUD_COVER = 60
 MASKS = ['cloud', 'cshadow', 'snow']  # only for Landsat
-ROI = ee.Geometry.Rectangle([9.1552,9.1258, 9.6036,9.6312])
-ROI_NAME = 'NIGERIA'
+ROI = ee.Geometry.Rectangle([8.868,9.2443, 9.0561,9.4888])
+ROI_NAME = 'BOKOS'
 EPSG = 'UTM'  # UTM for automatic UTM Zone WGS84
 
 

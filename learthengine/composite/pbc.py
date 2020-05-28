@@ -63,18 +63,19 @@ CLOUD_COVER = 60                       # maximum Cloud Cover
 BANDS = ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']                         # spectral features to calculate
 PIXEL_RESOLUTION = 30                   # target spatial (pixel) resolution
 MASKS = ['cloud', 'cshadow', 'snow']    # !only for Landsat!, default = ['cloud', 'cshadow', 'snow']
+EXCLUDE_SLC_OFF = True                       # inlclude L7 scenes with defect scan-line corrector (after 31st May 2003)
 
 ROI = ee.Geometry.Rectangle([38.596,8.79,38.965,9.151])
 ROI_NAME = 'ADDIS'
 EPSG = 'UTM'                            # 'UTM' will automatically find UTM Zone of ROI, otherwise specify EPSG code
 
-NOBS = True                           # add layer of number of observations per pixel
+NOBS = False                          # add layer of number of observations per pixel
 
-SCORE = 'MEDIAN'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
+SCORE = 'MED'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
                                         # maximum NDVI composite ('MAX_NDVI') or any string used as name for STMs
-STMs = [ee.Reducer.median()]                           # None or list of metrics to calculate, e.g. [ee.Reducer.mean()]
+STMs = [ee.Reducer.median()]                      # None or list of metrics to calculate, e.g. [ee.Reducer.mean()]
 
-TARGET_YEARS = [2020]
+TARGET_YEARS = [1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020]
 SURR_YEARS = 1
 TARGET_DOYS = [182]                       # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
 DOY_RANGE = 182                          # +- TARGET_DOY
@@ -87,7 +88,7 @@ WEIGHT_DOY = 0.6
 WEIGHT_YEAR = 0.1
 WEIGHT_CLOUD = 0.3
 
-BANDNAME = 'VIIR'
+BANDNAME = 'TC'
 
 
 
@@ -194,6 +195,10 @@ for year in TARGET_YEARS:
             .map(prepro.mask_landsat_sr(bits)) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
             .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
+
+        # check SLC_OFF statement
+        if EXCLUDE_SLC_OFF:
+            imgCol_L7_SR = imgCol_L7_SR.filter(ee.Filter.date("1999-04-18", "2003-05-31"))
 
         imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
             .filterBounds(ROI) \
