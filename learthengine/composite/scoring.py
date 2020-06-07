@@ -71,3 +71,31 @@ def score(w_doyscore, w_yearscore, w_cloudscore):
         return img.addBands(SCORE)
     return wrap
 
+
+def fun_add_doy_band(img):
+    DOY_value = img.date().getRelative('day', 'year')
+    DOY = ee.Image.constant(DOY_value).int().rename('DOY')
+    DOY = DOY.updateMask(img.select('R').mask())
+    return img.addBands(DOY)
+
+
+def fun_doys(img):
+    return ee.Feature(None, {'doy': img.date().getRelative('day', 'year')})
+
+
+def fun_addyearband(img):
+    YEAR_value = ee.Number.parse((img.date().format("YYYY")))
+    YEAR = ee.Image.constant(YEAR_value).int().rename('YEAR')
+    YEAR = YEAR.updateMask(img.select('R').mask())
+    return img.addBands(YEAR)
+
+
+def fun_addcloudband(img):
+    CLOUD_MASK = img.mask().select('R')
+    CLOUD_DISTANCE = CLOUD_MASK.Not() \
+        .distance(ee.Kernel.euclidean(radius=REQ_DISTANCE, units='pixels')) \
+        .rename('CLOUD_DISTANCE')
+    CLIP_MAX = CLOUD_DISTANCE.lte(ee.Image.constant(REQ_DISTANCE))
+    CLOUD_DISTANCE = CLOUD_DISTANCE.updateMask(CLIP_MAX)
+    CLOUD_DISTANCE = CLOUD_DISTANCE.updateMask(CLOUD_MASK)
+    return img.addBands(CLOUD_DISTANCE)

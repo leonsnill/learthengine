@@ -4,15 +4,15 @@ from learthengine import prepro
 from learthengine import generals
 
 
-SENSOR = 'S2_SR'
-BANDS = ['NDVI']
-PIXEL_RESOLUTION = 10
-YEAR_MIN, YEAR_MAX = 2019, 2019
-MONTH_MIN, MONTH_MAX = 3, 11
+SENSOR = 'LS'
+BANDS = ['TCW']
+PIXEL_RESOLUTION = 30
+YEAR_MIN, YEAR_MAX = 2013, 2019
+MONTH_MIN, MONTH_MAX = 1, 12
 CLOUD_COVER = 60
 MASKS = ['cloud', 'cshadow', 'snow']  # only for Landsat
-ROI = ee.Geometry.Rectangle([8.868,9.2443, 9.0561,9.4888])
-ROI_NAME = 'BOKOS'
+ROI = ee.Geometry.Rectangle([-60.8048, -16.4838, -60.2102, -15.9788])
+ROI_NAME = 'Espiritu'
 EPSG = 'UTM'  # UTM for automatic UTM Zone WGS84
 
 

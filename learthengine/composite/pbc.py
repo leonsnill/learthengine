@@ -60,22 +60,22 @@ import numpy as np
 
 SENSOR = 'LS'                           # either (S2_L1C, S2_L2A, LS, L5, L7, L8, SL)
 CLOUD_COVER = 60                       # maximum Cloud Cover
-BANDS = ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']                         # spectral features to calculate
+BANDS = ['NDVI']                         # 'B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'
 PIXEL_RESOLUTION = 30                   # target spatial (pixel) resolution
 MASKS = ['cloud', 'cshadow', 'snow']    # !only for Landsat!, default = ['cloud', 'cshadow', 'snow']
 EXCLUDE_SLC_OFF = True                       # inlclude L7 scenes with defect scan-line corrector (after 31st May 2003)
 
-ROI = ee.Geometry.Rectangle([38.596,8.79,38.965,9.151])
+ROI = ee.Geometry.Rectangle([38.4824,8.7550,39.0482,9.2000])   # 38.596,8.79,38.965,9.151 Addis
 ROI_NAME = 'ADDIS'
 EPSG = 'UTM'                            # 'UTM' will automatically find UTM Zone of ROI, otherwise specify EPSG code
 
 NOBS = False                          # add layer of number of observations per pixel
 
-SCORE = 'MED'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
+SCORE = 'P90'                         # switch to either process a PBC based on Griffiths et al. (2013) ('SCORE') or
                                         # maximum NDVI composite ('MAX_NDVI') or any string used as name for STMs
-STMs = [ee.Reducer.median()]                      # None or list of metrics to calculate, e.g. [ee.Reducer.mean()]
+STMs = [ee.Reducer.percentile([90])]                      # None or list of metrics to calculate, e.g. [ee.Reducer.mean()]
 
-TARGET_YEARS = [1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020]
+TARGET_YEARS = [1985, 1990, 1995, 2000, 2010, 2015, 2020]  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
 SURR_YEARS = 1
 TARGET_DOYS = [182]                       # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
 DOY_RANGE = 182                          # +- TARGET_DOY
@@ -88,9 +88,10 @@ WEIGHT_DOY = 0.6
 WEIGHT_YEAR = 0.1
 WEIGHT_CLOUD = 0.3
 
-BANDNAME = 'TC'
+BANDNAME = 'NDVI'
 
-
+export_option = "Asset"
+asset_path = "users/leonxnill/Addis/"
 
 RESAMPLE = None                         # leave to None
 REDUCE_RESOLUTION = None                # leave to None ee.Reducer.mean().unweighted()
@@ -135,6 +136,7 @@ def fun_addcloudband(img):
 # EXECUTE
 # ====================================================================================================#
 # select bits for mask
+'''
 dict_mask = {'cloud': ee.Number(2).pow(5).int(),
              'cshadow': ee.Number(2).pow(3).int(),
              'snow': ee.Number(2).pow(4).int()}
@@ -144,7 +146,7 @@ bits = ee.Number(1)
 
 for m in sel_masks:
     bits = ee.Number(bits.add(m))
-
+'''
 # find epsg
 if EPSG == 'UTM':
     EPSG = generals.find_utm(ROI)
@@ -183,7 +185,7 @@ for year in TARGET_YEARS:
             .filter(time_filter) \
             .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
             .map(prepro.rename_bands_l5) \
-            .map(prepro.mask_landsat_sr(bits)) \
+            .map(prepro.mask_landsat_sr(MASKS)) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
             .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -192,7 +194,7 @@ for year in TARGET_YEARS:
             .filter(time_filter) \
             .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
             .map(prepro.rename_bands_l7) \
-            .map(prepro.mask_landsat_sr(bits)) \
+            .map(prepro.mask_landsat_sr(MASKS)) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
             .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -205,7 +207,7 @@ for year in TARGET_YEARS:
             .filter(time_filter) \
             .filter(ee.Filter.lt('CLOUD_COVER_LAND', CLOUD_COVER)) \
             .map(prepro.rename_bands_l8) \
-            .map(prepro.mask_landsat_sr(bits)) \
+            .map(prepro.mask_landsat_sr(MASKS)) \
             .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
             .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -257,6 +259,7 @@ for year in TARGET_YEARS:
         imgCol_SR = imgCol_SR.map(prepro.ndvi)
         imgCol_SR = imgCol_SR.map(prepro.ndwi1)
         imgCol_SR = imgCol_SR.map(prepro.ndwi2)
+        imgCol_SR = imgCol_SR.map(prepro.ndbi)
         imgCol_SR = imgCol_SR.map(prepro.tcg)
         imgCol_SR = imgCol_SR.map(prepro.tcb)
         imgCol_SR = imgCol_SR.map(prepro.tcw)
@@ -360,11 +363,20 @@ for year in TARGET_YEARS:
                    str(PIXEL_RESOLUTION) + 'm_' + str(iter_target_doy) + '-' + str(DOY_RANGE) + \
                     '_' + str(year) + '-' + str(SURR_YEARS)
 
-        out = ee.batch.Export.image.toDrive(image=img_composite.toInt16(), description=out_file,
-                                            scale=PIXEL_RESOLUTION,
-                                            maxPixels=1e13,
-                                            region=ROI['coordinates'][0],
-                                            crs=EPSG)
+        if export_option == "Drive":
+            out = ee.batch.Export.image.toDrive(image=img_composite.toInt16(), description=out_file,
+                                                scale=PIXEL_RESOLUTION,
+                                                maxPixels=1e13,
+                                                region=ROI['coordinates'][0],
+                                                crs=EPSG)
+        elif export_option == "Asset":
+            out = ee.batch.Export.image.toAsset(image=img_composite.toInt16(), description=out_file,
+                                                assetId=asset_path+out_file,
+                                                scale=PIXEL_RESOLUTION,
+                                                maxPixels=1e13,
+                                                region=ROI['coordinates'][0],
+                                                crs=EPSG)
+
         process = ee.batch.Task.start(out)
 
 # =====================================================================================================================#

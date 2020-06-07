@@ -1,7 +1,17 @@
 import ee
 
 
-def mask_landsat_sr(bits):
+def mask_landsat_sr(masks):
+    dict_mask = {'cloud': ee.Number(2).pow(5).int(),
+                 'cshadow': ee.Number(2).pow(3).int(),
+                 'snow': ee.Number(2).pow(4).int()}
+
+    sel_masks = [dict_mask[x] for x in masks]
+    bits = ee.Number(1)
+
+    for m in sel_masks:
+        bits = ee.Number(bits.add(m))
+
     def wrap(img):
         qa = img.select('pixel_qa')
         mask = qa.bitwiseAnd(bits).eq(0)

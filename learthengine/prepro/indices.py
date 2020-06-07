@@ -19,6 +19,13 @@ def ndwi2(img):
        return img.addBands(ndwi)
 
 
+# Zha et al. (2003): Use of Normalized Difference Built-Up Index in Automatically Mapping Urban Areas from TM Imagery
+def ndbi(img):
+    ndbi = img.normalizedDifference(['SWIR1', 'NIR']).rename('NDBI')
+    # ndwi = ndwi.multiply(10000)
+    return img.addBands(ndbi)
+
+
 # Tasseled Cap Transformation (brightness, greenness, wetness) based on Christ 1985
 def tcg(img):
     tcg = img.expression(
