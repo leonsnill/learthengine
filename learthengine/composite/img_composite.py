@@ -2,47 +2,9 @@
 #
 # Title: Landsat and Sentinel-2 Image Compositing Tool
 # Author: Leon Nill
-# Last modified: 2019-06-20
+# Last modified: 2020-06-08
 #
 # ====================================================================================================#
-
-'''
-This tool allows for creating pixel-based Landsat image composites based on the
-approach of Griffiths et al. (2013): "A Pixel-Based Landsat Compositing Algorithm
-for Large Area Land Cover Mapping".
-
-Further, the user can specify the calculation of either spectral-temporal metrics (STMs) (e.g. mean, min, ...)
-or pixel-based composites based on scoring functions that determine the suitability of each pixel.
-
--- User Requirements --
-SENSOR               [STRING] – Single sensors or combinations (S2_L1C, S2_L2A, LS, L5, L7, L8, SL)
-
-TARGET_YEARS         [INT] – List of integer years.
-SURR_YEARS           INT – 'surrounding years', i.e. should adjacent years be considered for compositing
-MONTHLY              BOOLEAN – if True, a monthly iteration is used, if False, iteration is over chosen
-                     day of years
-SCORE                [STRING] – Score paramater used to create image composite in "qualityMosaic()"-function.
-                     ('SCORE', 'NDVI') Selection is based on the maximum of the given parameter, e.g. max NDVI
-TARGET_MONTHS_client [INT] – List of target months
-STMs                 [ee.Reducer] STMs as ee.Reducer object(s), e.g. ee.Reducer.mean()
-
-ROI                  [xMin, yMin, xMax, yMax] – List of corner coordinates, e.g. [22.26, -19.54, 22.94, -18.89]
-ROI_NAME             STRING – Name of the study area which will be used for the output filenames
-EPSG                 STRING - Coordinate System !Currently disabled and exports are in WGS84!
-PIXEL_RESOLUTION     INT/FLOAT – Output pixelsize in meters
-
-CLOUD_COVER          INT/FLOAT – Maximum cloud cover percentage of scenes considered in pre-selection
-BANDS                [STRING] – List of string band-names for export image (B,G,R,NIR,SWIR1,SWIR2,NDVI,TCW, ...)
-
-DOY_RANGE            INT – Offset in days to consider around target doy
-REQ_DISTANCE_client  INT – Distance from clouds/ c. shadows in pixels at which optimal conditions are expected
-MIN_DISTANCE_client  INT - Minimum distance from clouds/ c. shadows in pixels
-W_DOYSCORE_client    FLOAT – Weight of day of year in scoring (0-1)
-W_YEARSCORE_client   FLOAT – Weight of year in scoring (0-1)
-W_CLOUDSCORE_client  FLOAT – Weight of cloud distance in scoring (0-1)
-
-'''
-
 import ee
 ee.Initialize()
 
@@ -54,38 +16,47 @@ import datetime
 import numpy as np
 
 
-# ====================================================================================================#
-# USER INPUTS
-# ====================================================================================================#
-
-
-kwargs = {
-    'sensor': 'S2_L2A',
-    'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],
-    'pixel_resolution': 20,
-    'cloud_cover': 70,
-    'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [38.4824, 8.7550, 39.0482, 9.2000],
-    'score': 'STM',
-    'reducer': ee.Reducer.median(),
-    'target_years': [2020],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
-    'surr_years': 1,
-    'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 182,
-    'exclude_slc_off': True,
-    'export_option': 'Asset',
-    'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'MEDIAN_ADDIS'
-}
-
-# ====================================================================================================#
-# EXECUTE
-# ====================================================================================================#
-
 def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, masks=None,
                   roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0, target_doys=None,
-                  doy_range=182, doy_vs_year=20, pbc_cloud_distance=(10, 50), pbc_weights=(0.6, 0.1, 0.3),
-                  exclude_slc_off=True, export_option="Asset", asset_path=None, export_name=None):
+                  doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50, weight_doy=0.4,
+                  weight_year=0.4, weight_cloud=0.2, exclude_slc_off=False, export_option="Drive", asset_path=None,
+                  export_name=None):
+    """
+    Image compositing function capable of creating pixel-based composites (PBC) according to Griffiths et al. (2013):
+    "A Pixel-Based Landsat Compositing Algorithm for Large Area Land Cover Mapping", maximum NDVI composites as well as
+    spectral-temporal metrics (STMs).
+
+    :param sensor:              (Str) sensors to use. One of S2_L1C (TOA), S2_L2A (BOA), L5, L7, L8, LS (L-5/7/8),
+                                SL (LS+S2_L2A)
+    :param bands:               (List) of bandnames. One of ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2', 'NDVI', 'NDWI1',
+                                'NDWI2', 'TCG', 'TCB', 'TCW', 'NDBI']. Default ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'].
+    :param pixel_resolution:    (Int) pixel (spatial) resolution in CRS unit (usually meters). Default to 30.
+    :param cloud_cover:         (Int) maximum scene cloud cover. Default to 70.
+    :param masks:               (List) of objects to mask. One of and default to ['cloud', 'cshadow', 'snow'].
+    :param roi:                 (List) of rectangle corner coordinates in [lon1, lat1, lon2, lat2]. Default to "Berlin".
+    :param score:               (Str) Which method to use for compositing. One of "PBC", "MAX_NDVI", "STM" or "NOBS"
+                                (pixel wise number of observations). Default to "STM".
+    :param reducer:             (ee.Reducer object) if score = "STM". Default to ee.Reducer.median().
+    :param epsg:                (Str) EPSG code. Default to None will automatically detect UTM Zone.
+    :param target_years:        (List) of target years for compositing. Default to [2019].
+    :param surr_years:          (Int) +- years to consider around target_years. Default to 0.
+    :param target_doys:         (List) of target DOYs for compositing. Default to [182].
+    :param doy_range:           (Int) +- DOYs to consider around target_doys. Default to 182.
+    :param doy_vs_year:         (Int) If score = "PBC". DOY at which an image with an one year offset from target_years
+                                has the same score as an image in the target_year with that DOY offset.
+    :param min_clouddistance:   (Int) If score = "PBC". Minimum required distance from clouds.
+    :param max_clouddistance:   (Int) If score = "PBC". Distance at which the maximum cloud score is allocated.
+    :param weight_doy:          (Int) If score = "PBC". Weight for the DOY score. Default to 0.4.
+    :param weight_year:         (Int) If score = "PBC". Weight for the YEAR score. Default to 0.4.
+    :param weight_cloud:        (Int) If score = "PBC". Weight for the CLOUD score. Default to 0.2.
+    :param exclude_slc_off:     (Bool) Exclude Landsat-7 ETM+ scenes after the scan-line corrector failure
+                                (i.e. after May 31, 2003). Default to False.
+    :param export_option:       (Str) One of "Drive" or "Asset". Default to "Drive".
+    :param asset_path:          (Str) If export_option = "Asset". Directory string to store Assets in.
+    :param export_name:         (Str) Name that is appendend to the image files. E.g. if the study area is Berlin,
+                                the STM = ee.Reducer.median() and the band = "NDVI" one may choose "NDVI_MEDIAN_BERLIN"
+    :return:                    If successful, returns "Submitted to Server."
+    """
 
     # defaults
     if roi is None:
@@ -100,6 +71,8 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
     if bands is None:
         bands = ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
         print("No bands specified. B-G-R-NIR-SWIR1-SWIR2 it is.")
+    if reducer is None:
+        reducer = ee.Reducer.median()
     if target_years is None:
         target_years = [2019]
         print("No target years specified. 2019 it is.")
@@ -119,8 +92,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
     if epsg is None:
         epsg = generals.find_utm(roi)
 
-    min_clouddistance, max_clouddistance = pbc_cloud_distance
-    weight_doy, weight_year, weight_cloud = pbc_weights
+
 
     for year in target_years:
         for i in range(len(target_doys)):
@@ -239,7 +211,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             # --------------------------------------------------
             imgCol_SR = imgCol_SR.map(composite.fun_add_doy_band)
             imgCol_SR = imgCol_SR.map(composite.fun_addyearband)
-            imgCol_SR = imgCol_SR.map(composite.fun_addcloudband)
+            imgCol_SR = imgCol_SR.map(composite.fun_addcloudband(REQ_DISTANCE))
 
             if score == 'PBC':
                 # --------------------------------------------------
@@ -307,6 +279,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             else:
                 print("Invalid score specified. Must be one of 'PBC', 'MAX_NDVI', 'STM' or 'NOBS'")
 
+
             # output filename
             out_file = sensor + '_' + score + '_' + export_name + '_' + \
                        str(pixel_resolution) + 'm_' + str(iter_target_doy) + '-' + str(doy_range) + \
@@ -329,7 +302,10 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             else:
                 print("Invalid export option specified. Must be one of 'Drive' or 'Asset'")
 
-            return ee.batch.Task.start(out)
+            process = ee.batch.Task.start(out)
+
+            return print("Submitted to Server.")
+
 
 # =====================================================================================================================#
 # END
