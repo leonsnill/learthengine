@@ -12,7 +12,7 @@ def land_surface_temperature(img):
             'AF3': img.select('AF3'),
             'L': img.select('L')
         }
-    ).rename('LST')
+    ).rename('lst')
     return img.addBands(lst)
 
 
@@ -40,7 +40,7 @@ def delta(coef):
 
 def mask_lst(threshold):
     def wrap(img):
-        mask = img.select('LST').gt(threshold)
+        mask = img.select('lst').gt(threshold)
         return img.updateMask(mask)\
             .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap

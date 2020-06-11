@@ -3,7 +3,7 @@ LANDSAT LAND SURFACE TEMPERATURE AND MULTISPECTRAL INDICES METRICS RETRIEVAL
 Leon Nill (2019)
 
 GEE Implementation of the Single-Channel (SC) algorithm developed by Jiménez-Muñoz & Sobrino (2003),
-Jiménez-Muñoz et al. (2009) and Jiménez-Muñoz et al. (2014) for retrieving statistical metrics of LST
+Jiménez-Muñoz et al. (2009) and Jiménez-Muñoz et al. (2014) for retrieving statistical metrics of lst
 from Landsat TM, ETM+ and OLI-TIRS data. The atmospheric functions used in the algorithm are
 approximated using data on atmospheric water vapor content from the NCEP/NCAR Reanalysis Data.
 Currently, the approximation is optimized for high-latitude regions with usually low water vapor
@@ -12,8 +12,8 @@ Threshold (SNDVI) approach as described by Sobrino et al. (2008).
 
   User Requirements:
   select_parameter          [STRING] List of selected parameter to process
-                            Currently implemented: 'LST', 'NDVI', 'NDWI', 'TCG', 'TCB', 'TCW'
-                            Output scaled by factor 10,000, except LST scaled by 100 both in Int16 GTiff.
+                            Currently implemented: 'lst', 'NDVI', 'NDWI', 'TCG', 'TCB', 'TCW'
+                            Output scaled by factor 10,000, except lst scaled by 100 both in Int16 GTiff.
                             Theil-Sen ('ts') output slopes scaled by 365 (= yearly) and 100,000,000
   select_metrics            [STRING] List of selected metrics to calculate
                             Currently implemented: 'mean', 'median', 'min', 'max', 'std', 'percentile',
@@ -57,7 +57,7 @@ sensor = 'L8'
 
 stm = False  # True = STMs False = single scene
 
-select_parameters = ['LST']
+select_parameters = ['lst']
 select_metrics = ['median']
 percentiles = []
 
@@ -175,9 +175,9 @@ def fun_mask_ls_sr(img):
        return img.updateMask(mask)
 
 
-# Function to mask LST below certain temperature threshold
+# Function to mask lst below certain temperature threshold
 def fun_mask_T(img):
-    mask = img.select('LST').gt(t_threshold)
+    mask = img.select('lst').gt(t_threshold)
     return img.updateMask(mask)
 
 
@@ -428,12 +428,12 @@ def fun_lst(img):
             'AF3': img.select('AF3'),
             'L': img.select('L')
         }
-    ).rename('LST')
+    ).rename('lst')
     return img.addBands(lst)
 
 
 def fun_mask_lst(img):
-    mask = img.select('LST').gt(t_threshold)
+    mask = img.select('lst').gt(t_threshold)
     return img.updateMask(mask)
 
 
@@ -687,7 +687,7 @@ imgCol_merge = imgCol_merge.map(fun_epsilon_scale)
 imgCol_merge = imgCol_merge.map(fun_epsilon)
 
 
-# LST
+# lst
 imgCol_merge = imgCol_merge.map(fun_lst)
 imgCol_merge = imgCol_merge.map(fun_mask_lst)
 
@@ -725,7 +725,7 @@ if stm:
                 else:
                     reducer = lookup_metrics[metric]
                     temp = imgCol_mosaic.select(parameter).reduce(reducer)
-                if parameter == 'LST':
+                if parameter == 'lst':
                     temp = temp.multiply(100).int16()
                 else:
                     temp = temp.multiply(10000).int16()
@@ -750,7 +750,7 @@ else:
     for parameter in select_parameters:
         lyr = layerstack(newcol.select(parameter))
 
-        if parameter == 'LST':
+        if parameter == 'lst':
             lyr = lyr.multiply(100)
         else:
             lyr = lyr.multiply(10000)

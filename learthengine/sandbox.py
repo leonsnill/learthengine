@@ -3,7 +3,7 @@ ee.Initialize()
 
 kwargs = {
     'sensor': 'L8',
-    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'bands': ['lst'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
     'cloud_cover': 70,
     'masks': ['cloud', 'cshadow', 'snow'],
@@ -30,7 +30,7 @@ learthengine.composite.img_composite(**kwargs)
 
 
 sensor='L8'
-bands = ['LST']
+bands = ['lst']
 pixel_resolution = 30
 cloud_cover=70
 masks=['cloud', 'cshadow', 'snow']
