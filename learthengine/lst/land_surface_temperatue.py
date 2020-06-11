@@ -1,6 +1,6 @@
 
 
-def lst(img):
+def land_surface_temperature(img):
     lst = img.expression(
         '(GAMMA*(((1/EPSILON)*(AF1*L+AF2))+AF3)+DELTA)-273.15',
         {
