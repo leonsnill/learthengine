@@ -11,7 +11,7 @@ ee.Initialize()
 from learthengine import generals
 from learthengine import prepro
 from learthengine import composite
-from learthengine import lst
+from learthengine import LST
 
 import datetime
 import numpy as np
@@ -195,15 +195,15 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                     .filterBounds(roi) \
                     .filter(time_filter)
 
-                imgCol_L5_TOA = imgCol_L5_TOA.map(lst.radcal)
-                imgCol_L7_TOA = imgCol_L7_TOA.map(lst.radcal)
-                imgCol_L8_TOA = imgCol_L8_TOA.map(lst.radcal)
+                imgCol_L5_TOA = imgCol_L5_TOA.map(LST.radcal)
+                imgCol_L7_TOA = imgCol_L7_TOA.map(LST.radcal)
+                imgCol_L8_TOA = imgCol_L8_TOA.map(LST.radcal)
 
-                imgCol_L5_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L5_SR, imgCol_L5_TOA, lst.maxDiffFilter))
-                imgCol_L7_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L7_SR, imgCol_L7_TOA, lst.maxDiffFilter))
-                imgCol_L8_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L8_SR, imgCol_L8_TOA, lst.maxDiffFilter))
+                imgCol_L5_SR = ee.ImageCollection(LST.join_l.apply(imgCol_L5_SR, imgCol_L5_TOA, LST.maxDiffFilter))
+                imgCol_L7_SR = ee.ImageCollection(LST.join_l.apply(imgCol_L7_SR, imgCol_L7_TOA, LST.maxDiffFilter))
+                imgCol_L8_SR = ee.ImageCollection(LST.join_l.apply(imgCol_L8_SR, imgCol_L8_TOA, LST.maxDiffFilter))
 
-                imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L5_SR,
+                imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = LST.apply_lst_prepro(imgCol_L5_SR,
                                                                                 imgCol_L7_SR,
                                                                                 imgCol_L8_SR, imgCol_WV)
 
@@ -246,10 +246,10 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
             if 'LST' in bands:
                 imgCol_SR = imgCol_SR.map(prepro.fvc(ndvi_soil=0.15, ndvi_vegetation=0.9))
-                imgCol_SR = imgCol_SR.map(lst.emissivity())
-                imgCol_SR = imgCol_SR.map(lst.land_surface_temperature)
+                imgCol_SR = imgCol_SR.map(LST.emissivity())
+                imgCol_SR = imgCol_SR.map(LST.land_surface_temperature)
                 if lst_threshold:
-                    imgCol_SR = imgCol_SR.map(lst.mask_lst(threshold=lst_threshold))
+                    imgCol_SR = imgCol_SR.map(LST.mask_lst(threshold=lst_threshold))
 
 
             # --------------------------------------------------
