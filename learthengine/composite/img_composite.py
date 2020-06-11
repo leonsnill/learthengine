@@ -193,7 +193,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
                 imgCol_WV = ee.ImageCollection('NCEP_RE/surface_wv') \
                     .filterBounds(roi) \
-                    .filter(time_filter) \
+                    .filter(time_filter)
 
                 imgCol_L5_TOA = imgCol_L5_TOA.map(lst.radcal)
                 imgCol_L7_TOA = imgCol_L7_TOA.map(lst.radcal)

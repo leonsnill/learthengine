@@ -1,5 +1,5 @@
 import ee
-from learthengine import lst, prepro
+from learthengine import lst
 
 
 def apply_lst_prepro(imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR, imgCol_WV):
