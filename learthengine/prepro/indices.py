@@ -7,6 +7,30 @@ def ndvi(img):
        return img.addBands(ndvi)
 
 
+def fvc(ndvi_soil=0.15, ndvi_vegetation=0.9):
+    """
+    Derive fractional vegetation cover from linear relationship to NDVI
+    Default valaues follow recommendations for higher resolution data according to Jimenez-Munoz et al. (2009):
+    "Comparison Between Fractional Vegetation Cover Retrievals from Vegetation Indices and Spectral Mixture Analysis:
+    Case Study of PROBA/CHRIS Data Over an Agricultural Area", Sensors, 9(2), 768–793.
+    """
+    def wrap(img):
+        fvc = img.expression(
+            '((NDVI-NDVI_s)/(NDVI_v-NDVI_s))**2',
+            {
+                'NDVI': img.select('NDVI'),
+                'NDVI_s': ndvi_soil,
+                'NDVI_v': ndvi_vegetation
+            }
+        )
+        fvc = fvc.where(fvc.expression('fvc > 1',
+                                                   {'fvc': fvc}), 1)
+        fvc = fvc.where(fvc.expression('fvc < 0',
+                                                   {'fvc': fvc}), 0).rename('FVC')
+        return img.addBands(fvc)
+    return wrap
+
+
 def ndwi1(img):
        ndwi = img.normalizedDifference(['NIR', 'SWIR1']).rename('NDWI1')
        #ndwi = ndwi.multiply(10000)

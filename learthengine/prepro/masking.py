@@ -50,3 +50,14 @@ def mask_s2(img):
     return img.addBands(mask).updateMask(mask)\
               .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
 
+
+def focal_mask(kernelsize=10):
+    def wrap(img):
+        kernel = ee.Kernel.square(kernelsize, 'pixels')
+        mask = img.mask()
+        smooth = ee.Kernel.circle(radius=1)
+        mask = mask.focal_max({'kernel': smooth, 'iterations': 2})
+        mask = mask.focal_min({'kernel': kernel, 'iterations': 2})
+        return img.updateMask(mask).copyProperties({'source': img})\
+                  .set('system:time_start', img.get('system:time_start'))
+    return wrap

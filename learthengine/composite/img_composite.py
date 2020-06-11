@@ -11,6 +11,7 @@ ee.Initialize()
 from learthengine import generals
 from learthengine import prepro
 from learthengine import composite
+from learthengine import lst
 
 import datetime
 import numpy as np
@@ -20,7 +21,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                   roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0, target_doys=None,
                   doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50, weight_doy=0.4,
                   weight_year=0.4, weight_cloud=0.2, exclude_slc_off=False, export_option="Drive", asset_path=None,
-                  export_name=None):
+                  export_name=None, lst_threshold=None):
     """
     Image compositing function capable of creating pixel-based composites (PBC) according to Griffiths et al. (2013):
     "A Pixel-Based Landsat Compositing Algorithm for Large Area Land Cover Mapping", maximum NDVI composites as well as
@@ -171,6 +172,43 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_scl) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
+            if 'LST' in bands:
+                imgCol_L5_TOA = ee.ImageCollection('LANDSAT/LT05/C01/T1') \
+                    .filterBounds(roi) \
+                    .filter(time_filter) \
+                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
+                    .select(['B6'])
+
+                imgCol_L7_TOA = ee.ImageCollection('LANDSAT/LE07/C01/T1') \
+                    .filterBounds(roi) \
+                    .filter(time_filter) \
+                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
+                    .select(['B6_VCID_2'])
+
+                imgCol_L8_TOA = ee.ImageCollection('LANDSAT/LC08/C01/T1') \
+                    .filterBounds(roi) \
+                    .filter(time_filter) \
+                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
+                    .select(['B10'])
+
+                imgCol_WV = ee.ImageCollection('NCEP_RE/surface_wv') \
+                    .filterBounds(roi) \
+                    .filter(time_filter) \
+
+                imgCol_L5_TOA = imgCol_L5_TOA.map(lst.radcal)
+                imgCol_L7_TOA = imgCol_L7_TOA.map(lst.radcal)
+                imgCol_L8_TOA = imgCol_L8_TOA.map(lst.radcal)
+
+                imgCol_L5_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L5_SR, imgCol_L5_TOA, lst.maxDiffFilter))
+                imgCol_L7_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L7_SR, imgCol_L7_TOA, lst.maxDiffFilter))
+                imgCol_L8_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L8_SR, imgCol_L8_TOA, lst.maxDiffFilter))
+
+                imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L5_SR,
+                                                                                imgCol_L7_SR,
+                                                                                imgCol_L8_SR, imgCol_WV)
+
+
+
             # --------------------------------------------------
             # MERGE imgCols
             # --------------------------------------------------
@@ -205,6 +243,14 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             imgCol_SR = imgCol_SR.map(prepro.tcg)
             imgCol_SR = imgCol_SR.map(prepro.tcb)
             imgCol_SR = imgCol_SR.map(prepro.tcw)
+
+            if 'LST' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.fvc(ndvi_soil=0.15, ndvi_vegetation=0.9))
+                imgCol_SR = imgCol_SR.map(lst.emissivity())
+                imgCol_SR = imgCol_SR.map(lst.lst)
+                if lst_threshold:
+                    imgCol_SR = imgCol_SR.map(lst.mask_lst(threshold=lst_threshold))
+
 
             # --------------------------------------------------
             # Add DOY, YEAR & CLOUD Bands to ImgCol
