@@ -43,7 +43,7 @@ def delta(coef):
 
 def mask_lst(threshold):
     def wrap(img):
-        mask = img.select('lst').gt(threshold)
+        mask = img.select('LST').gt(threshold)
         return img.updateMask(mask)\
             .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap
