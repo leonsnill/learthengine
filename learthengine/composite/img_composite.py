@@ -172,7 +172,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_scl) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
-            if 'lst' in bands:
+            if 'LST' in bands:
                 imgCol_L5_TOA = ee.ImageCollection('LANDSAT/LT05/C01/T1') \
                     .filterBounds(roi) \
                     .filter(time_filter) \
@@ -244,7 +244,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             imgCol_SR = imgCol_SR.map(prepro.tcb)
             imgCol_SR = imgCol_SR.map(prepro.tcw)
 
-            if 'lst' in bands:
+            if 'LST' in bands:
                 imgCol_SR = imgCol_SR.map(prepro.fvc(ndvi_soil=0.15, ndvi_vegetation=0.9))
                 imgCol_SR = imgCol_SR.map(lst.emissivity())
                 imgCol_SR = imgCol_SR.map(lst.land_surface_temperature(scale=0.01))

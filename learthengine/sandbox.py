@@ -3,7 +3,7 @@ ee.Initialize()
 
 kwargs = {
     'sensor': 'L8',
-    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'bands': ['LST', 'AF1'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
     'cloud_cover': 70,
     'masks': ['cloud', 'cshadow', 'snow'],
