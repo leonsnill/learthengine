@@ -249,7 +249,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 imgCol_SR = imgCol_SR.map(lst.emissivity())
                 imgCol_SR = imgCol_SR.map(lst.land_surface_temperature(scale=0.01))
                 if lst_threshold:
-                    imgCol_SR = imgCol_SR.map(lst.mask_lst(threshold=lst_threshold))
+                    imgCol_SR = imgCol_SR.map(lst.mask_lst(threshold=lst_threshold, scale=0.01))
 
 
             # --------------------------------------------------

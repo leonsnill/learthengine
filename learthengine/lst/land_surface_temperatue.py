@@ -41,7 +41,8 @@ def delta(coef):
     return wrap
 
 
-def mask_lst(threshold):
+def mask_lst(threshold, scale=1):
+    threshold = threshold * scale
     def wrap(img):
         mask = img.select('LST').gt(threshold)
         return img.updateMask(mask)\
