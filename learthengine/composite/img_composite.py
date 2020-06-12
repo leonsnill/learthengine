@@ -333,13 +333,13 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
             # export image
             if export_option == "Drive":
-                out = ee.batch.Export.image.toDrive(image=img_composite.toInt16(), description=out_file,
+                out = ee.batch.Export.image.toDrive(image=img_composite, description=out_file,
                                                     scale=pixel_resolution,
                                                     maxPixels=1e13,
                                                     region=roi['coordinates'][0],
                                                     crs=epsg)
             elif export_option == "Asset":
-                out = ee.batch.Export.image.toAsset(image=img_composite.toInt16(), description=out_file,
+                out = ee.batch.Export.image.toAsset(image=img_composite, description=out_file,
                                                     assetId=asset_path+out_file,
                                                     scale=pixel_resolution,
                                                     maxPixels=1e13,

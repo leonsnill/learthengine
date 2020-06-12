@@ -53,27 +53,27 @@ from learthengine import prepro
 # --------------------------------------------------
 # User Requirements
 # --------------------------------------------------
-sensor = 'L8'
+sensor = 'LS'
 
-stm = False  # True = STMs False = single scene
+stm = True  # True = STMs False = single scene
 
 select_parameters = ['lst']
-select_metrics = ['median']
+select_metrics = ['mean']
 percentiles = []
 
 # Time
-year_start = 1990
-year_end = 2000
-month_start = 8
-month_end = 8
+year_start = 1994
+year_end = 1996
+month_start = 1
+month_end = 12
 
 # Space
-select_roi = ee.Geometry.Rectangle([-136.3, 67.8, -132.5, 69.8])
-max_cloud_cover = 60
+select_roi = ee.Geometry.Rectangle([38.4824, 8.7550, 39.0482, 9.2000])
+max_cloud_cover = 70
 masks = ['cloud', 'cshadow', 'snow']
-epsg = 'EPSG:32608'
+epsg = 'EPSG:32636'
 pixel_resolution = 30
-roi_filename = 'Mackenzie_Delta'
+roi_filename = 'ADDIS_lst_landsat'
 
 
 # select bits for mask
@@ -90,14 +90,14 @@ for m in sel_masks:
 # --------------------------------------------------
 # Algorithm Specifications
 # --------------------------------------------------
-ndvi_v = 0.75
-ndvi_s = 0.2
+ndvi_v = 0.9
+ndvi_s = 0.15
 
 epsilon_v = 0.985
 epsilon_s = 0.97
 epsilon_w = 0.99
 
-t_threshold = 4
+t_threshold = 10
 
 '''
 cs_l8 = [0.04019, 0.02916, 1.01523,
@@ -559,7 +559,7 @@ imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')\
     .filter(ee.Filter.calendarRange(month_start,month_end,'month'))\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l5) \
-    .map(prepro.mask_landsat_sr(bits)) \
+    .map(prepro.mask_landsat_sr(masks)) \
     .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
     .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -579,7 +579,7 @@ imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR')\
     .filter(ee.Filter.calendarRange(month_start,month_end,'month'))\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l7) \
-    .map(prepro.mask_landsat_sr(bits)) \
+    .map(prepro.mask_landsat_sr(masks)) \
     .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
     .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -599,7 +599,7 @@ imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')\
     .filter(ee.Filter.calendarRange(month_start,month_end,'month'))\
     .filter(ee.Filter.lt('CLOUD_COVER_LAND', max_cloud_cover))\
     .map(prepro.rename_bands_l8) \
-    .map(prepro.mask_landsat_sr(bits)) \
+    .map(prepro.mask_landsat_sr(masks)) \
     .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR']))\
     .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
