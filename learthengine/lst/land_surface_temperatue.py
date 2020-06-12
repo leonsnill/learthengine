@@ -1,19 +1,22 @@
 
 
-def land_surface_temperature(img):
-    lst = img.expression(
-        '(GAMMA*(((1/EPSILON)*(AF1*L+AF2))+AF3)+DELTA)-273.15',
-        {
-            'GAMMA': img.select('GAMMA'),
-            'DELTA': img.select('DELTA'),
-            'EPSILON': img.select('EPSILON'),
-            'AF1': img.select('AF1'),
-            'AF2': img.select('AF2'),
-            'AF3': img.select('AF3'),
-            'L': img.select('L')
-        }
-    ).rename('lst')
-    return img.addBands(lst)
+def land_surface_temperature(scale=1):
+    def wrap(img):
+        lst = img.expression(
+            '(GAMMA*(((1/EPSILON)*(AF1*L+AF2))+AF3)+DELTA)-273.15',
+            {
+                'GAMMA': img.select('GAMMA'),
+                'DELTA': img.select('DELTA'),
+                'EPSILON': img.select('EPSILON'),
+                'AF1': img.select('AF1'),
+                'AF2': img.select('AF2'),
+                'AF3': img.select('AF3'),
+                'L': img.select('L')
+            }
+        ).rename('LST')
+        lst = lst.multiply(scale)
+        return img.addBands(lst)
+    return wrap
 
 
 # Gamma Functions
