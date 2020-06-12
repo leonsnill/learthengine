@@ -3,7 +3,7 @@ ee.Initialize()
 
 kwargs = {
     'sensor': 'L8',
-    'bands': ['lst'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
     'cloud_cover': 70,
     'masks': ['cloud', 'cshadow', 'snow'],
@@ -27,7 +27,7 @@ learthengine.composite.img_composite(**kwargs)
 # [-18.675, -37.455, 52.867, 38.463] Africa
 # [37.066,9.304, 38.138,10.013] Ethiopia Highland Example
 
-
+# pip install --upgrade git+https://github.com/leonsnill/learthengine.git
 
 sensor='L8'
 bands = ['lst']

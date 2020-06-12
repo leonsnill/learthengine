@@ -13,8 +13,8 @@ def land_surface_temperature(scale=1):
                 'AF3': img.select('AF3'),
                 'L': img.select('L')
             }
-        ).rename('LST')
-        lst = lst.multiply(scale)
+        )
+        lst = lst.multiply(scale).rename('LST')
         return img.addBands(lst)
     return wrap
 
