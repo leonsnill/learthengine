@@ -350,7 +350,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
             process = ee.batch.Task.start(out)
 
-            return print("Submitted to Server.")
+    return print("Submitted to Server.")
 
 
 # =====================================================================================================================#
