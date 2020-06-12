@@ -17,8 +17,8 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'LST_MEAN_ADDIS2',
-    'lst_threshold': None
+    'export_name': 'LST_MEAN_ADDIS_last',
+    'lst_threshold': 10
 }
 
 from learthengine import composite
@@ -33,16 +33,16 @@ composite.img_composite(**kwargs)
 import ee
 ee.Initialize()
 
-sensor='L8'
+sensor='LS'
 bands = ['LST']
 pixel_resolution = 30
 cloud_cover=70
 masks=['cloud', 'cshadow', 'snow']
 roi=[38.4824, 8.7550, 39.0482, 9.2000]
 score = "STM"
-reducer=ee.Reducer.median()
-target_years=[2017]
-surr_years=3
+reducer=ee.Reducer.mean()
+target_years=[1995]
+surr_years=1
 target_doys=[182]
 doy_range=60
 epsg=None
@@ -55,5 +55,5 @@ weight_cloud=0.2
 exclude_slc_off=True
 export_option="Drive"
 asset_path="users/leonxnill/Addis/"
-export_name='LST_MED_ADDIS'
-lst_threshold=None
+export_name='LST_MED_ADDIS_1995'
+lst_threshold=10

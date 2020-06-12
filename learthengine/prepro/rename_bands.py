@@ -3,7 +3,7 @@ import ee
 
 def rename_bands_l5(img):
     bands = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'pixel_qa']
-    new_bands = ['B', 'G', 'R', 'NIR', 'TIR', 'SWIR1', 'SWIR2', 'pixel_qa']
+    new_bands = ['B', 'G', 'R', 'NIR', 'SWIR1', 'TIR', 'SWIR2', 'pixel_qa']
     return img.select(bands).rename(new_bands).set('satellite_id', 'L5_')
 
 

@@ -16,10 +16,12 @@ def atmospheric_functions(cs=None, sensor='L5'):
 
         if sensor == 'L5':
             cs = cs_l5
-        if sensor == 'L7':
+        elif sensor == 'L7':
             cs = cs_l7
-        if sensor == 'L8':
+        elif sensor == 'L8':
             cs = cs_l8
+        else:
+            return
 
     def wrap(img):
         af1 = img.expression(

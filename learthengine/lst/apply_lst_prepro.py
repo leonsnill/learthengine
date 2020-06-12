@@ -4,34 +4,34 @@ from .collection_matching import maxDiffFilter, join_wv
 from .land_surface_temperatue import delta, gamma
 
 
-def apply_lst_prepro(imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR, imgCol_WV):
+def apply_lst_prepro(imgcol_l5, imgcol_l7, imgcol_l8, imgcol_wv):
 
-    imgCol_L5_SR = imgCol_L5_SR.map(radiance_addband)
-    imgCol_L7_SR = imgCol_L7_SR.map(radiance_addband)
-    imgCol_L8_SR = imgCol_L8_SR.map(radiance_addband)
+    imgcol_l5 = imgcol_l5.map(radiance_addband)
+    imgcol_l7 = imgcol_l7.map(radiance_addband)
+    imgcol_l8 = imgcol_l8.map(radiance_addband)
 
     # Water Vapor
-    imgCol_L5_SR = ee.ImageCollection(join_wv.apply(imgCol_L5_SR, imgCol_WV, maxDiffFilter))
-    imgCol_L7_SR = ee.ImageCollection(join_wv.apply(imgCol_L7_SR, imgCol_WV, maxDiffFilter))
-    imgCol_L8_SR = ee.ImageCollection(join_wv.apply(imgCol_L8_SR, imgCol_WV, maxDiffFilter))
+    imgcol_l5 = ee.ImageCollection(join_wv.apply(imgcol_l5, imgcol_wv, maxDiffFilter))
+    imgcol_l7 = ee.ImageCollection(join_wv.apply(imgcol_l7, imgcol_wv, maxDiffFilter))
+    imgcol_l8 = ee.ImageCollection(join_wv.apply(imgcol_l8, imgcol_wv, maxDiffFilter))
 
-    imgCol_L5_SR = imgCol_L5_SR.map(scale_wv)
-    imgCol_L7_SR = imgCol_L7_SR.map(scale_wv)
-    imgCol_L8_SR = imgCol_L8_SR.map(scale_wv)
+    imgcol_l5 = imgcol_l5.map(scale_wv)
+    imgcol_l7 = imgcol_l7.map(scale_wv)
+    imgcol_l8 = imgcol_l8.map(scale_wv)
 
     # Atmospheric Functions
-    imgCol_L5_SR = imgCol_L5_SR.map(atmospheric_functions(sensor='L5'))
-    imgCol_L7_SR = imgCol_L7_SR.map(atmospheric_functions(sensor='L7'))
-    imgCol_L8_SR = imgCol_L8_SR.map(atmospheric_functions(sensor='L8'))
+    imgcol_l5 = imgcol_l5.map(atmospheric_functions(sensor='L5'))
+    imgcol_l7 = imgcol_l7.map(atmospheric_functions(sensor='L7'))
+    imgcol_l8 = imgcol_l8.map(atmospheric_functions(sensor='L8'))
 
     # Delta and Gamma Functions
-    imgCol_L5_SR = imgCol_L5_SR.map(delta(1256))
-    imgCol_L7_SR = imgCol_L7_SR.map(delta(1277))
-    imgCol_L8_SR = imgCol_L8_SR.map(delta(1324))
+    imgcol_l5 = imgcol_l5.map(delta(1256))
+    imgcol_l7 = imgcol_l7.map(delta(1277))
+    imgcol_l8 = imgcol_l8.map(delta(1324))
 
-    imgCol_L5_SR = imgCol_L5_SR.map(gamma(1256))
-    imgCol_L7_SR = imgCol_L7_SR.map(gamma(1277))
-    imgCol_L8_SR = imgCol_L8_SR.map(gamma(1324))
+    imgcol_l5 = imgcol_l5.map(gamma(1256))
+    imgcol_l7 = imgcol_l7.map(gamma(1277))
+    imgcol_l8 = imgcol_l8.map(gamma(1324))
 
-    return imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR
+    return imgcol_l5, imgcol_l7, imgcol_l8
 
