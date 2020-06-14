@@ -10,14 +10,14 @@ kwargs = {
     'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'reducer': ee.Reducer.mean(),
-    'target_years': [1995],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
+    'target_years': [1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
     'surr_years': 1,
     'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 182,
-    'exclude_slc_off': True,
+    'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'LST_MEAN_ADDIS_last',
+    'export_name': 'LST_MEAN_ADDIS',
     'lst_threshold': 10
 }
 
@@ -57,3 +57,146 @@ export_option="Drive"
 asset_path="users/leonxnill/Addis/"
 export_name='LST_MED_ADDIS_1995'
 lst_threshold=10
+
+
+
+
+
+
+
+from datetime import datetime, timedelta
+import numpy as np
+import cdsapi
+import gdal
+
+roi = [roi[1] - 0.5, roi[0] + 0.5, roi[3] + 0.5, roi[2] - 0.5]
+
+def era5_tcwv(imgcol, roi=None):
+
+    # prepare imgcol
+    imgcol = imgcol.sort("system:time_start")
+    unix_time = imgcol.reduceColumns(ee.Reducer.toList(), ["system:time_start"]).get('list').getInfo()
+
+
+    def hour_rounder(t):
+        return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
+                + timedelta(hours=t.minute // 30))
+
+
+    time = [hour_rounder(datetime.fromtimestamp(x / 1000)) for x in unix_time]
+    dates = [x.strftime('%Y-%m-%d') for x in time]
+    hour = [time[0].strftime('%H:%M')]
+
+    x, y = np.unique(np.array(dates), return_inverse=True)
+    c = cdsapi.Client()
+    c.retrieve(
+        'reanalysis-era5-single-levels',
+        {
+            'product_type': 'reanalysis',
+            'format': 'grib',
+            'variable': 'total_column_water_vapour',
+            "date": dates,
+            'time': hour,
+            'area': roi,
+        },
+        'era5_tcwv.grib')
+
+    # get wv raster imfo
+    wv = gdal.Open('era5_tcwv.grib')
+    gt = wv.GetGeoTransform()
+
+    # client side arrays
+    wv_array = wv.ReadAsArray()
+    wv_array = [wv_array[i] for i in y]  # needed because of unique dates
+
+    # create list of server-side images
+    wv_imgs = [ee.Image(ee.Array(x.tolist())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
+
+
+    def add_wv_img(imgcol, wv_img_list):
+        wv_img_list = ee.List(wv_img_list)
+        list = imgcol.toList(imgcol.size()).zip(wv_img_list)
+        list = list.map(lambda x: ee.Image(ee.List(x).get(0)) \
+                        .addBands(ee.Image(ee.List(x).get(1)).rename('WV')))
+        return ee.ImageCollection(list)
+
+
+    imgcol = add_wv_img(imgcol, wv_imgs)
+    return imgcol
+
+
+
+# get time in milliseconds
+imgCol_L5_SR = imgCol_L5_SR.sort("system:time_start")
+unix_time = imgCol_L5_SR.reduceColumns(ee.Reducer.toList(), ["system:time_start"]).get('list').getInfo()
+from datetime import datetime, timedelta
+
+def hour_rounder(t):
+    return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
+               +timedelta(hours=t.minute//30))
+
+time = [hour_rounder(datetime.fromtimestamp(x/1000)) for x in unix_time]
+dates = [x.strftime('%Y-%m-%d') for x in time]
+hour = [time[0].strftime('%H:%M')]
+
+roi = [38.4824, 8.7550, 39.0482, 9.2000]
+
+
+a = np.array(dates)
+x,y = np.unique(a, return_inverse = True)
+
+
+c = cdsapi.Client()
+c.retrieve(
+    'reanalysis-era5-single-levels',
+    {
+        'product_type': 'reanalysis',
+        'format': 'grib',
+        'variable': 'total_column_water_vapour',
+        "date": dates,
+        'time': hour,
+        'area': [roi[1]-1, roi[0]+1, roi[3]+1, roi[2]-1],
+    },
+    'download.grib')
+
+
+# get wv raster imfo
+wv = gdal.Open("download.grib")
+gt = wv.GetGeoTransform()
+
+# client side arrays
+wv_array = wv.ReadAsArray()#.flatten().tolist()
+wv_array = [wv_array[i] for i in y]  # needed because of unique dates
+
+# create list of server-side images
+wv_imgs = [ee.Image(ee.Array(x.tolist())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
+
+#wv_array_i = wv_array[0]
+#ea = ee.Array(wv_array_i.tolist())
+#eai = ee.Image(ea).setDefaultProjection(crs='EPSG:4326', crsTransform=gt)
+
+
+def add_wv_img(imgcol, wv_img_list):
+    wv_img_list = ee.List(wv_img_list)
+    list = imgcol.toList(imgcol.size()).zip(wv_img_list)
+    list = list.map(lambda x: ee.Image(ee.List(x).get(0)) \
+                    .addBands(ee.Image(ee.List(x).get(1)).rename('WV')))
+    return ee.ImageCollection(list)
+
+
+def add_wv_point(imgcol, wv_list):
+    array = ee.Array(wv_list)
+    list = imgcol.toList(imgcol.size()).zip(array.toList())
+    return ee.ImageCollection(list.map(lambda x: ee.Image(ee.List(x).get(0)).set('WV', ee.List(x).get(1))))
+
+test = add_wv_img(imgCol_L5_SR, wv_imgs)
+first = test.first().select('WV')
+
+# add wv as band
+def add_wv_band(img):
+    wv = ee.Image.constant(ee.Number(img.get('WV'))).rename('WV')
+    return img.addBands(wv)
+
+test2 = test.map(add_wv_band)
+
+first = test2.first().select('WV')

@@ -4,20 +4,11 @@ from .collection_matching import maxDiffFilter, join_wv
 from .land_surface_temperatue import delta, gamma
 
 
-def apply_lst_prepro(imgcol_l5, imgcol_l7, imgcol_l8, imgcol_wv):
+def apply_lst_prepro(imgcol_l5, imgcol_l7, imgcol_l8):
 
     imgcol_l5 = imgcol_l5.map(radiance_addband)
     imgcol_l7 = imgcol_l7.map(radiance_addband)
     imgcol_l8 = imgcol_l8.map(radiance_addband)
-
-    # Water Vapor
-    imgcol_l5 = ee.ImageCollection(join_wv.apply(imgcol_l5, imgcol_wv, maxDiffFilter))
-    imgcol_l7 = ee.ImageCollection(join_wv.apply(imgcol_l7, imgcol_wv, maxDiffFilter))
-    imgcol_l8 = ee.ImageCollection(join_wv.apply(imgcol_l8, imgcol_wv, maxDiffFilter))
-
-    imgcol_l5 = imgcol_l5.map(scale_wv)
-    imgcol_l7 = imgcol_l7.map(scale_wv)
-    imgcol_l8 = imgcol_l8.map(scale_wv)
 
     # Atmospheric Functions
     imgcol_l5 = imgcol_l5.map(atmospheric_functions(sensor='L5'))

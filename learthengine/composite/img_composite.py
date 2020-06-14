@@ -21,7 +21,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                   roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0, target_doys=None,
                   doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50, weight_doy=0.4,
                   weight_year=0.4, weight_cloud=0.2, exclude_slc_off=False, export_option="Drive", asset_path=None,
-                  export_name=None, lst_threshold=None):
+                  export_name=None, lst_threshold=None, wv_method="NCEP"):
     """
     Image compositing function capable of creating pixel-based composites (PBC) according to Griffiths et al. (2013):
     "A Pixel-Based Landsat Compositing Algorithm for Large Area Land Cover Mapping", maximum NDVI composites as well as
@@ -87,6 +87,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
         export_name = "BERLIN"
 
     # roi client to server
+    roi_era5 = [roi[1] - 0.5, roi[0] + 0.5, roi[3] + 0.5, roi[2] - 0.5]
     roi = ee.Geometry.Rectangle(roi)
 
     # find epsg
@@ -191,10 +192,6 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                     .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                     .select(['B10'])
 
-                imgCol_WV = ee.ImageCollection('NCEP_RE/surface_wv') \
-                    .filterBounds(roi) \
-                    .filter(time_filter)
-
                 imgCol_L5_TOA = imgCol_L5_TOA.map(lst.radcal)
                 imgCol_L7_TOA = imgCol_L7_TOA.map(lst.radcal)
                 imgCol_L8_TOA = imgCol_L8_TOA.map(lst.radcal)
@@ -203,9 +200,29 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 imgCol_L7_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L7_SR, imgCol_L7_TOA, lst.maxDiffFilter))
                 imgCol_L8_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L8_SR, imgCol_L8_TOA, lst.maxDiffFilter))
 
+                # Water Vapor
+                if wv_method == 'NCEP':
+                    imgCol_WV = ee.ImageCollection('NCEP_RE/surface_wv') \
+                        .filterBounds(roi) \
+                        .filter(time_filter)
+                    imgCol_L5_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L5_SR, imgCol_WV, lst.maxDiffFilter))
+                    imgCol_L7_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L7_SR, imgCol_WV, lst.maxDiffFilter))
+                    imgCol_L8_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L8_SR, imgCol_WV, lst.maxDiffFilter))
+
+                    imgCol_L5_SR = imgCol_L5_SR.map(lst.scale_wv)
+                    imgCol_L7_SR = imgCol_L7_SR.map(lst.scale_wv)
+                    imgCol_L8_SR = imgCol_L8_SR.map(lst.scale_wv)
+
+                elif wv_method == 'ERA5':
+                    print("Begin client-side ERA5 retrieval")
+                    imgCol_L5_SR = lst.era5_tcwv(imgCol_L5_SR, roi=roi_era5)
+                    imgCol_L7_SR = lst.era5_tcwv(imgCol_L7_SR, roi=roi_era5)
+                    imgCol_L8_SR = lst.era5_tcwv(imgCol_L8_SR, roi=roi_era5)
+
+
                 imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L5_SR,
                                                                                 imgCol_L7_SR,
-                                                                                imgCol_L8_SR, imgCol_WV)
+                                                                                imgCol_L8_SR)
 
 
 

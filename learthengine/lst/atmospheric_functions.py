@@ -64,3 +64,70 @@ def radcal(img):
 def radiance_addband(img):
     l = ee.Image(img.get('L')).select('RADIANCE').rename('L')
     return img.addBands(l)
+
+
+def add_wv(imgcol, wv_list):
+    array = ee.Array(wv_list)
+    list = imgcol.toList(imgcol.size()).zip(array.toList())
+    return ee.ImageCollection(list.map(lambda x: ee.Image(ee.List(x).get(0)).set('WV', ee.List(x).get(1))))
+
+
+from datetime import datetime, timedelta
+import numpy as np
+import cdsapi
+import gdal
+
+
+def era5_tcwv(imgcol, roi=None):
+
+    # prepare imgcol
+    imgcol = imgcol.sort("system:time_start")
+    unix_time = imgcol.reduceColumns(ee.Reducer.toList(), ["system:time_start"]).get('list').getInfo()
+
+
+    def hour_rounder(t):
+        return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
+                + timedelta(hours=t.minute // 30))
+
+
+    time = [hour_rounder(datetime.fromtimestamp(x / 1000)) for x in unix_time]
+    dates = [x.strftime('%Y-%m-%d') for x in time]
+    hour = [time[0].strftime('%H:%M')]
+
+    x, y = np.unique(np.array(dates), return_inverse=True)
+    c = cdsapi.Client()
+    c.retrieve(
+        'reanalysis-era5-single-levels',
+        {
+            'product_type': 'reanalysis',
+            'format': 'grib',
+            'variable': 'total_column_water_vapour',
+            "date": dates,
+            'time': hour,
+            'area': roi,
+        },
+        'era5_tcwv.grib')
+
+    # get wv raster imfo
+    wv = gdal.Open('era5_tcwv.grib')
+    gt = wv.GetGeoTransform()
+
+    # client side arrays
+    wv_array = wv.ReadAsArray()
+    wv_array = wv_array * 0.1  # scale from kg/m2 to
+    wv_array = [wv_array[i] for i in y]  # needed because of unique dates
+
+    # create list of server-side images
+    wv_imgs = [ee.Image(ee.Array(x.tolist())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
+
+
+    def add_wv_img(imgcol, wv_img_list):
+        wv_img_list = ee.List(wv_img_list)
+        list = imgcol.toList(imgcol.size()).zip(wv_img_list)
+        list = list.map(lambda x: ee.Image(ee.List(x).get(0)) \
+                        .addBands(ee.Image(ee.List(x).get(1)).rename('WV_SCALED')))
+        return ee.ImageCollection(list)
+
+
+    imgcol = add_wv_img(imgcol, wv_imgs)
+    return imgcol
