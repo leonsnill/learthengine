@@ -19,13 +19,3 @@ join_l = ee.Join.saveBest(
     matchKey = 'L',
     measureKey = 'timeDiff'
 )
-
-filterTimeEq = ee.Filter.equals(
-  leftField='system:time_start',
-  rightField='system:time_start'
-)
-
-join_era5 = ee.Join.saveBest(
-    matchKey = 'WV_SCALED',
-    ordering = 'system:time_start'
-)
