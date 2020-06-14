@@ -111,6 +111,7 @@ def era5_tcwv(imgcol, roi=None):
     # get wv raster imfo
     wv = gdal.Open('era5_tcwv.grib')
     gt = wv.GetGeoTransform()
+    gt = [round(x, 4) for x in gt]
 
     # client side arrays
     wv_array = wv.ReadAsArray()
