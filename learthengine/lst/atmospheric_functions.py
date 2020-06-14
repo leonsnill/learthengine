@@ -119,7 +119,7 @@ def era5_tcwv(imgcol, roi=None):
     wv_array = [wv_array[i] for i in y]  # needed because of unique dates
 
     # create list of server-side images
-    wv_imgs = [ee.Image(ee.Array(x.tolist())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
+    wv_imgs = [ee.Image(ee.Array(x.tolist(), pixelType=ee.PixelType.float())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
     wv_imgs = [wv_imgs[i].rename('WV_SCALED').set('system:time_start', unix_time[i]) for i in range(len(unix_time))]
     wv_img_list = ee.List(wv_imgs)
     imgcol_wv = ee.ImageCollection(wv_img_list)
