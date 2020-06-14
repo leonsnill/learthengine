@@ -110,6 +110,74 @@ def era5_tcwv(imgcol, roi=None):
 
     # get wv raster imfo
     wv = gdal.Open('era5_tcwv.grib')
+
+    # client side arrays
+    wv_array = wv.ReadAsArray()
+    wv_array = wv_array * 0.1  # scale from kg/m2 to
+    wv_array = [round(np.mean(wv_array[i]), 5) for i in y]  # needed because of unique dates
+
+    # create list of server-side images
+    wv_imgs = [ee.Image.constant(x) for x in wv_array]
+    wv_imgs = [wv_imgs[i].rename('WV_SCALED').set('system:time_start', unix_time[i]) for i in range(len(unix_time))]
+    wv_img_list = ee.List(wv_imgs)
+    imgcol_wv = ee.ImageCollection(wv_img_list)
+
+    filterTimeEq = ee.Filter.equals(
+        leftField='system:time_start',
+        rightField='system:time_start'
+    )
+
+    join_era5 = ee.Join.saveFirst(
+        matchKey='WV_SCALED',
+        ordering='system:time_start'
+    )
+
+    imgcol = ee.ImageCollection(join_era5.apply(imgcol, imgcol_wv, filterTimeEq))
+
+    def wv_addband(img):
+        return img.addBands(ee.Image(img.get('WV_SCALED')))
+
+    imgcol = imgcol.map(wv_addband)
+
+    return imgcol
+
+
+
+
+
+
+def era5_tcwv_old(imgcol, roi=None):
+
+    # prepare imgcol
+    imgcol = imgcol.sort("system:time_start")
+    unix_time = imgcol.reduceColumns(ee.Reducer.toList(), ["system:time_start"]).get('list').getInfo()
+
+
+    def hour_rounder(t):
+        return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
+                + timedelta(hours=t.minute // 30))
+
+
+    time = [hour_rounder(datetime.fromtimestamp(x / 1000)) for x in unix_time]
+    dates = [x.strftime('%Y-%m-%d') for x in time]
+    hour = [time[0].strftime('%H:%M')]
+
+    x, y = np.unique(np.array(dates), return_inverse=True)
+    c = cdsapi.Client()
+    c.retrieve(
+        'reanalysis-era5-single-levels',
+        {
+            'product_type': 'reanalysis',
+            'format': 'grib',
+            'variable': 'total_column_water_vapour',
+            "date": dates,
+            'time': hour,
+            'area': roi,  # N W S E
+        },
+        'era5_tcwv.grib')
+
+    # get wv raster imfo
+    wv = gdal.Open('era5_tcwv.grib')
     gt = wv.GetGeoTransform()
     gt = [round(x, 4) for x in gt]
 
@@ -119,8 +187,9 @@ def era5_tcwv(imgcol, roi=None):
     wv_array = [wv_array[i] for i in y]  # needed because of unique dates
 
     # create list of server-side images
-    wv_imgs = [ee.Image(ee.Array(x.tolist(), ee.PixelType.float())) \
-                   .arrayProject([0]) \
+    wv_imgs = [ee.Image(ee.Array(x.flatten().tolist(), ee.PixelType.float())) \
+                   #.arrayGet([0]) \
+                   #.arrayProject([0]) \
                    .arrayFlatten([['WV_SCALED']]) \
                    .setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
     wv_imgs = [wv_imgs[i].rename('WV_SCALED').set('system:time_start', unix_time[i]) for i in range(len(unix_time))]
