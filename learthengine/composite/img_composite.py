@@ -215,9 +215,12 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
                 elif wv_method == 'ERA5':
                     print("Begin client-side ERA5 retrieval")
-                    imgCol_L5_SR = lst.era5_tcwv(imgCol_L5_SR, roi=roi_era5)
-                    imgCol_L7_SR = lst.era5_tcwv(imgCol_L7_SR, roi=roi_era5)
-                    imgCol_L8_SR = lst.era5_tcwv(imgCol_L8_SR, roi=roi_era5)
+                    if imgCol_L5_SR.size().getInfo() > 0:
+                        imgCol_L5_SR = lst.era5_tcwv(imgCol_L5_SR, roi=roi_era5)
+                    if imgCol_L7_SR.size().getInfo() > 0:
+                        imgCol_L7_SR = lst.era5_tcwv(imgCol_L7_SR, roi=roi_era5)
+                    if imgCol_L8_SR.size().getInfo() > 0:
+                        imgCol_L8_SR = lst.era5_tcwv(imgCol_L8_SR, roi=roi_era5)
 
 
                 imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L5_SR,

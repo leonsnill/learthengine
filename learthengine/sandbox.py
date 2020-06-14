@@ -10,7 +10,7 @@ kwargs = {
     'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'reducer': ee.Reducer.mean(),
-    'target_years': [1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
+    'target_years': [1995, 2015],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
     'surr_years': 1,
     'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 182,
@@ -18,7 +18,8 @@ kwargs = {
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
     'export_name': 'LST_MEAN_ADDIS',
-    'lst_threshold': 10
+    'lst_threshold': 10,
+    'wv_method': 'ERA5'
 }
 
 from learthengine import composite
@@ -41,7 +42,7 @@ masks=['cloud', 'cshadow', 'snow']
 roi=[38.4824, 8.7550, 39.0482, 9.2000]
 score = "STM"
 reducer=ee.Reducer.mean()
-target_years=[1995]
+target_years=[1995, 2015]
 surr_years=1
 target_doys=[182]
 doy_range=60
@@ -52,11 +53,12 @@ max_clouddistance=50
 weight_doy=0.4
 weight_year=0.4
 weight_cloud=0.2
-exclude_slc_off=True
+exclude_slc_off=False
 export_option="Drive"
 asset_path="users/leonxnill/Addis/"
 export_name='LST_MED_ADDIS_1995'
 lst_threshold=10
+wv_method="ERA5"
 
 
 
