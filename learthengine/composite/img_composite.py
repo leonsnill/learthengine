@@ -87,7 +87,8 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
         export_name = "BERLIN"
 
     # roi client to server
-    roi_era5 = [roi[1] - 0.5, roi[0] + 0.5, roi[3] + 0.5, roi[2] - 0.5]
+    roi_a = np.asarray(roi)
+    roi_era5 = [max(roi_a[[1, 3]]), min(roi_a[[0, 2]]), min(roi_a[[1, 3]]), max(roi_a[[0, 2]])]
     roi = ee.Geometry.Rectangle(roi)
 
     # find epsg

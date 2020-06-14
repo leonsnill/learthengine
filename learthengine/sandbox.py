@@ -63,6 +63,24 @@ wv_method="ERA5"
 
 
 
+aoi = ee.Geometry.Polygon(
+  [[[39.65168701191035, 7.7878201025696665],
+    [39.859428738148814, 7.757394203339766],
+    [39.859428738148814, 7.7878201025696665]]])
+
+# Get 2-d pixel array for AOI - returns feature with 2-D pixel array as property per band.
+band_arrs = first.sampleRectangle(region=ee.Geometry.Rectangle(roi))
+
+# Get individual band arrays.
+band_arr_b4 = band_arrs.get('WV_SCALED')
+band_arr_b5 = band_arrs.get('B5')
+band_arr_b6 = band_arrs.get('B6')
+
+# Transfer the arrays from server to client and cast as np array.
+np_arr_b4 = np.array(band_arr_b4.getInfo())
+np_arr_b5 = np.array(band_arr_b5.getInfo())
+np_arr_b6 = np.array(band_arr_b6.getInfo())
+
 
 
 

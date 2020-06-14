@@ -104,7 +104,7 @@ def era5_tcwv(imgcol, roi=None):
             'variable': 'total_column_water_vapour',
             "date": dates,
             'time': hour,
-            'area': roi,
+            'area': roi,  # N W S E
         },
         'era5_tcwv.grib')
 
@@ -115,12 +115,33 @@ def era5_tcwv(imgcol, roi=None):
 
     # client side arrays
     wv_array = wv.ReadAsArray()
-    wv_array = wv_array * 0.1  # scale from kg/m2 to
+    wv_array = np.round(wv_array * 0.1, 5)  # scale from kg/m2 to
     wv_array = [wv_array[i] for i in y]  # needed because of unique dates
 
     # create list of server-side images
     wv_imgs = [ee.Image(ee.Array(x.tolist())).setDefaultProjection(crs='EPSG:4326', crsTransform=gt) for x in wv_array]
+    wv_imgs = [wv_imgs[i].rename('WV_SCALED').set('system:time_start', unix_time[i]) for i in range(len(unix_time))]
+    wv_img_list = ee.List(wv_imgs)
+    imgcol_wv = ee.ImageCollection(wv_img_list)
 
+    filterTimeEq = ee.Filter.equals(
+        leftField='system:time_start',
+        rightField='system:time_start'
+    )
+
+    join_era5 = ee.Join.saveFirst(
+        matchKey='WV_SCALED',
+        ordering='system:time_start'
+    )
+
+    imgcol = ee.ImageCollection(join_era5.apply(imgcol, imgcol_wv, filterTimeEq))
+
+    def wv_addband(img):
+        #wv_scaled = ee.Image(img.get('WV_SCALED')).multiply(0.1).rename('WV_SCALED')
+        #wv_scaled = wv_scaled.resample('bilinear')
+        return img.addBands(ee.Image(img.get('WV_SCALED')))
+
+    imgcol = imgcol.map(wv_addband)
 
     def add_wv_img(imgcol, wv_img_list):
         wv_img_list = ee.List(wv_img_list)
@@ -129,6 +150,6 @@ def era5_tcwv(imgcol, roi=None):
                         .addBands(ee.Image(ee.List(x).get(1)).rename('WV_SCALED')))
         return ee.ImageCollection(list)
 
+    #imgcol = add_wv_img(imgcol, wv_imgs)
 
-    imgcol = add_wv_img(imgcol, wv_imgs)
     return imgcol
