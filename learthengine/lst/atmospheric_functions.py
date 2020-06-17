@@ -143,7 +143,8 @@ def era5_tcwv(imgcol, roi=None):
 
 
 
-
+# maybe implement the option for scene center retrieval using client-side gdal coords to image offset approaches
+# server side seems to be to heavy on the array side of things
 
 
 def era5_tcwv_old(imgcol, roi=None):

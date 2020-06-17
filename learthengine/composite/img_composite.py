@@ -291,6 +291,19 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 img_composite = img_composite.multiply(10000)
                 img_composite = img_composite.int16()
 
+            elif score == 'TS_slope':
+                imgCol_SR = imgCol_SR.map(generals.add_timeband())
+                for i in range(len(bands)):
+                    slope = imgCol_SR.select(['TIME', bands[i]]).reduce(ee.Reducer.sensSlope())
+                    slope = slope.select('slope')
+                    slope = slope.multiply(365.25)  # yearly increase
+                    slope = slope.multiply(10000).rename(bands[i]+'_slope')
+                    slope = slope.int16()
+                    if i == 0:
+                        img_composite = ee.Image(slope)
+                    else:
+                        img_composite = img_composite.addBands(slope)
+
             elif score == 'NOBS':
                 img_composite = imgCol_SR.select(bands[0]).count().rename('NOBS')
                 img_composite = img_composite.int16()

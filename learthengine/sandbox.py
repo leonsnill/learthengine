@@ -3,7 +3,7 @@ ee.Initialize()
 
 kwargs = {
     'sensor': 'L8',
-    'bands': ['B', 'G', 'R', 'NIR', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
@@ -17,9 +17,9 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'VIS_MED_SouthernSweden',
-    'lst_threshold': 10,
-    'wv_method': 'NCEP'
+    'export_name': 'LST_MED_SouthernSweden',
+    'lst_threshold': 5,
+    'wv_method': 'ERA5'
 }
 
 from learthengine import composite

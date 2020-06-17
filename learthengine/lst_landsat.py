@@ -714,7 +714,7 @@ if stm:
             if metric == 'ts':
                 temp = imgCol_mosaic.select(['TIME', parameter]).reduce(ee.Reducer.sensSlope())
                 temp = temp.select('slope')
-                temp = temp.multiply(365)
+                temp = temp.multiply(365.25)
                 temp = temp.multiply(100000000).int32()
             elif metric == 'nobs':
                 temp = imgCol_mosaic.select(parameter).count()
