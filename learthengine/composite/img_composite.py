@@ -34,7 +34,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
     :param pixel_resolution:    (Int) pixel (spatial) resolution in CRS unit (usually meters). Default to 30.
     :param cloud_cover:         (Int) maximum scene cloud cover. Default to 70.
     :param masks:               (List) of objects to mask. One of and default to ['cloud', 'cshadow', 'snow'].
-    :param roi:                 (List) of rectangle corner coordinates in [lon1, lat1, lon2, lat2]. Default to "Berlin".
+    :param roi_geom:                 (List) of rectangle corner coordinates in [lon1, lat1, lon2, lat2]. Default to "Berlin".
     :param score:               (Str) Which method to use for compositing. One of "PBC", "MAX_NDVI", "STM" or "NOBS"
                                 (pixel wise number of observations). Default to "STM".
     :param reducer:             (ee.Reducer object) if score = "STM". Default to ee.Reducer.median().
@@ -87,14 +87,11 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
         export_name = "BERLIN"
 
     # roi client to server
-    roi_a = np.asarray(roi)
-    roi_era5 = [max(roi_a[[1, 3]]), min(roi_a[[0, 2]]), min(roi_a[[1, 3]]), max(roi_a[[0, 2]])]
-    roi = ee.Geometry.Rectangle(roi)
+    roi_geom = ee.Geometry.Rectangle(roi)
 
     # find epsg
     if epsg is None:
-        epsg = generals.find_utm(roi)
-
+        epsg = generals.find_utm(roi_geom)
 
 
     for year in target_years:
@@ -126,7 +123,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             # IMPORT ImageCollections
             # --------------------------------------------------
             imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
-                .filterBounds(roi) \
+                .filterBounds(roi_geom) \
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l5) \
@@ -135,7 +132,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
             imgCol_L7_SR = ee.ImageCollection('LANDSAT/LE07/C01/T1_SR') \
-                .filterBounds(roi) \
+                .filterBounds(roi_geom) \
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l7) \
@@ -148,7 +145,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 imgCol_L7_SR = imgCol_L7_SR.filter(ee.Filter.date("1999-04-18", "2003-05-31"))
 
             imgCol_L8_SR = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
-                .filterBounds(roi) \
+                .filterBounds(roi_geom) \
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l8) \
@@ -157,7 +154,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
             imgCol_S2_L1C = ee.ImageCollection('COPERNICUS/S2') \
-                .filterBounds(roi) \
+                .filterBounds(roi_geom) \
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_cover)) \
                 .map(prepro.mask_s2_cdi(-0.5)) \
@@ -166,7 +163,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
             imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
-                .filterBounds(roi) \
+                .filterBounds(roi_geom) \
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_cover)) \
                 .map(prepro.mask_s2_cdi(-0.5)) \
@@ -175,60 +172,15 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
             if 'LST' in bands:
-                imgCol_L5_TOA = ee.ImageCollection('LANDSAT/LT05/C01/T1') \
-                    .filterBounds(roi) \
-                    .filter(time_filter) \
-                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
-                    .select(['B6'])
-
-                imgCol_L7_TOA = ee.ImageCollection('LANDSAT/LE07/C01/T1') \
-                    .filterBounds(roi) \
-                    .filter(time_filter) \
-                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
-                    .select(['B6_VCID_2'])
-
-                imgCol_L8_TOA = ee.ImageCollection('LANDSAT/LC08/C01/T1') \
-                    .filterBounds(roi) \
-                    .filter(time_filter) \
-                    .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
-                    .select(['B10'])
-
-                imgCol_L5_TOA = imgCol_L5_TOA.map(lst.radcal)
-                imgCol_L7_TOA = imgCol_L7_TOA.map(lst.radcal)
-                imgCol_L8_TOA = imgCol_L8_TOA.map(lst.radcal)
-
-                imgCol_L5_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L5_SR, imgCol_L5_TOA, lst.maxDiffFilter))
-                imgCol_L7_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L7_SR, imgCol_L7_TOA, lst.maxDiffFilter))
-                imgCol_L8_SR = ee.ImageCollection(lst.join_l.apply(imgCol_L8_SR, imgCol_L8_TOA, lst.maxDiffFilter))
-
-                # Water Vapor
-                if wv_method == 'NCEP':
-                    imgCol_WV = ee.ImageCollection('NCEP_RE/surface_wv') \
-                        .filterBounds(roi) \
-                        .filter(time_filter)
-                    imgCol_L5_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L5_SR, imgCol_WV, lst.maxDiffFilter))
-                    imgCol_L7_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L7_SR, imgCol_WV, lst.maxDiffFilter))
-                    imgCol_L8_SR = ee.ImageCollection(lst.join_wv.apply(imgCol_L8_SR, imgCol_WV, lst.maxDiffFilter))
-
-                    imgCol_L5_SR = imgCol_L5_SR.map(lst.scale_wv)
-                    imgCol_L7_SR = imgCol_L7_SR.map(lst.scale_wv)
-                    imgCol_L8_SR = imgCol_L8_SR.map(lst.scale_wv)
-
-                elif wv_method == 'ERA5':
-                    print("Begin client-side ERA5 retrieval")
-                    if imgCol_L5_SR.size().getInfo() > 0:
-                        imgCol_L5_SR = lst.era5_tcwv(imgCol_L5_SR, roi=roi_era5)
-                    if imgCol_L7_SR.size().getInfo() > 0:
-                        imgCol_L7_SR = lst.era5_tcwv(imgCol_L7_SR, roi=roi_era5)
-                    if imgCol_L8_SR.size().getInfo() > 0:
-                        imgCol_L8_SR = lst.era5_tcwv(imgCol_L8_SR, roi=roi_era5)
-
-
-                imgCol_L5_SR, imgCol_L7_SR, imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L5_SR,
-                                                                                imgCol_L7_SR,
-                                                                                imgCol_L8_SR)
-
-
+                if imgCol_L5_SR.size().getInfo() > 0:
+                    imgCol_L5_SR = lst.apply_lst_prepro(imgCol_L5_SR, sensor="L5", time_filter=time_filter,
+                                                        roi=roi_geom, cloud_cover=cloud_cover, wv_method=wv_method)
+                if imgCol_L7_SR.size().getInfo() > 0:
+                    imgCol_L7_SR = lst.apply_lst_prepro(imgCol_L7_SR, sensor="L7", time_filter=time_filter,
+                                                        roi=roi_geom, cloud_cover=cloud_cover, wv_method=wv_method)
+                if imgCol_L8_SR.size().getInfo() > 0:
+                    imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L8_SR, sensor="L8", time_filter=time_filter,
+                                                        roi=roi_geom, cloud_cover=cloud_cover, wv_method=wv_method)
 
             # --------------------------------------------------
             # MERGE imgCols
@@ -357,14 +309,14 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 out = ee.batch.Export.image.toDrive(image=img_composite, description=out_file,
                                                     scale=pixel_resolution,
                                                     maxPixels=1e13,
-                                                    region=roi['coordinates'][0],
+                                                    region=roi_geom['coordinates'][0],
                                                     crs=epsg)
             elif export_option == "Asset":
                 out = ee.batch.Export.image.toAsset(image=img_composite, description=out_file,
                                                     assetId=asset_path+out_file,
                                                     scale=pixel_resolution,
                                                     maxPixels=1e13,
-                                                    region=roi['coordinates'][0],
+                                                    region=roi_geom['coordinates'][0],
                                                     crs=epsg)
             else:
                 print("Invalid export option specified. Must be one of 'Drive' or 'Asset'")

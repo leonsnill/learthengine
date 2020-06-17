@@ -2,24 +2,24 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'LS',
-    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'sensor': 'L8',
+    'bands': ['B', 'G', 'R', 'NIR', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'cloud_cover': 70,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [10.6810,55.208, 18.4868,59.037],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
-    'reducer': ee.Reducer.mean(),
-    'target_years': [1995, 2015],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
-    'surr_years': 1,
+    'reducer': ee.Reducer.median(),
+    'target_years': [2018],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
+    'surr_years': 2,
     'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 182,
-    'exclude_slc_off': False,
+    'doy_range': 30,
+    'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'LST_MEAN_ADDIS',
+    'export_name': 'VIS_MED_SouthernSweden',
     'lst_threshold': 10,
-    'wv_method': 'ERA5'
+    'wv_method': 'NCEP'
 }
 
 from learthengine import composite
