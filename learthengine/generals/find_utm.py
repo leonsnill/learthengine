@@ -7,5 +7,6 @@ def find_utm(lon):
     except Exception:
         pass
     utm = round((lon + 180) / 6)
-    return "EPSG:326"+str(utm)
+    utm = "{0:0=2d}".format(utm)
+    return "EPSG:326"+utm
 
