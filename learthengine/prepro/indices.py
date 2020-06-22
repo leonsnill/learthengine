@@ -7,6 +7,24 @@ def ndvi(img):
        return img.addBands(ndvi)
 
 
+def evi(gain=2.5, l=1, c1=6, c2=7.5):
+    def wrap(img):
+        evi = img.expression(
+            'gain * ((nir - red) / (nir + c1 * red - c2 * blue + l))',
+            {
+                'gain': gain,
+                'nir': img.select('NIR'),
+                'red': img.select('R'),
+                'blue': img.select('B'),
+                'c1': c1,
+                'c2': c2,
+                'l': l
+            }
+        ).rename('EVI')
+        return img.addBands(evi)
+    return wrap
+
+
 def fvc(ndvi_soil=0.15, ndvi_vegetation=0.9):
     """
     Derive fractional vegetation cover from linear relationship to NDVI
@@ -94,3 +112,39 @@ def tcw(img):
               }).rename('TCW')
        #tcw = tcw.multiply(10000)
        return img.addBands(tcw)
+
+
+def surface_albedo(coef=None, sensor="L5"):
+
+    if coef is None:
+
+        # Cunha et al. (2020): "Surface albedo as a proxy for land-cover clearing in seasonally dry forests: Evidence
+        # from the Brazilian Caatinga", Remote Sensing of Environment.
+        coef_l5 = [0.3206, 0, 0.1572, 0.3666, 0.1162, 0.0457, -0.0063]
+        coef_l7 = [0.3141, 0, 0.1607, 0.3694, 0.1160, 0.0456, -0.0057]
+        coef_l8 = [0.2453, 0.0508, 0.1804, 0.3081, 0.1332, 0.0521, 0.0011]
+
+        if sensor == 'L5':
+            coef = coef_l5
+        elif sensor == 'L7':
+            coef = coef_l7
+        elif sensor == 'L8':
+            coef = coef_l8
+        else:
+            return
+
+    coef = [str(x) for x in coef]
+
+    def wrap(img):
+        albedo = img.expression(
+            coef[0]+'*B+'+coef[1]+'*G+'+coef[2]+'*R+'+coef[3]+'*NIR+'+coef[4]+'*SWIR1+'+coef[5]+'*SWIR2+'+coef[6],
+            {
+                'B': img.select(['B']),
+                'G': img.select(['G']),
+                'R': img.select(['R']),
+                'NIR': img.select(['NIR']),
+                'SWIR1': img.select(['SWIR1']),
+                'SWIR2': img.select(['SWIR2'])
+            }).rename('ALBEDO')
+        return img.addBands(albedo)
+    return wrap

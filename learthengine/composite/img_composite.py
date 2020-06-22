@@ -182,6 +182,11 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                     imgCol_L8_SR = lst.apply_lst_prepro(imgCol_L8_SR, sensor="L8", time_filter=time_filter,
                                                         roi=roi_geom, cloud_cover=cloud_cover, wv_method=wv_method)
 
+            if 'ALBEDO' in bands:
+                imgCol_L5_SR = imgCol_L5_SR.map(prepro.surface_albedo(sensor="L5"))
+                imgCol_L7_SR = imgCol_L7_SR.map(prepro.surface_albedo(sensor="L7"))
+                imgCol_L8_SR = imgCol_L8_SR.map(prepro.surface_albedo(sensor="L8"))
+
             # --------------------------------------------------
             # MERGE imgCols
             # --------------------------------------------------
@@ -209,13 +214,22 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             # --------------------------------------------------
             # Calculate Indices
             # --------------------------------------------------
-            imgCol_SR = imgCol_SR.map(prepro.ndvi)
-            imgCol_SR = imgCol_SR.map(prepro.ndwi1)
-            imgCol_SR = imgCol_SR.map(prepro.ndwi2)
-            imgCol_SR = imgCol_SR.map(prepro.ndbi)
-            imgCol_SR = imgCol_SR.map(prepro.tcg)
-            imgCol_SR = imgCol_SR.map(prepro.tcb)
-            imgCol_SR = imgCol_SR.map(prepro.tcw)
+            if ('NDVI' in bands) or (score == 'MAXNDVI') or ('LST' in bands):
+                imgCol_SR = imgCol_SR.map(prepro.ndvi)
+            if 'EVI' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.evi())
+            if 'NDWI1' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.ndwi1)
+            if 'NDWI2' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.ndwi2)
+            if 'NDBI' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.ndbi)
+            if 'TCG' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.tcg)
+            if 'TCB' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.tcb)
+            if 'TCW' in bands:
+                imgCol_SR = imgCol_SR.map(prepro.tcw)
 
             if 'LST' in bands:
                 imgCol_SR = imgCol_SR.map(prepro.fvc(ndvi_soil=0.15, ndvi_vegetation=0.9))

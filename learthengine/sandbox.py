@@ -5,19 +5,19 @@ kwargs = {
     'sensor': 'LS',
     'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'cloud_cover': 50,
+    'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [-154.721,70.1400, -152.3431,70.9540],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
-    'score': 'TS_slope',
-    'reducer': ee.Reducer.median(),
-    'target_years': [2018],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
+    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'score': 'STM',
+    'reducer': ee.Reducer.stdDev(),
+    'target_years': [2005],  # 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020
     'surr_years': 1,
     'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 30,
+    'doy_range': 182,
     'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'NDVI_TS_ALASKA',
+    'export_name': 'NDVI_STD_ADDIS',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
