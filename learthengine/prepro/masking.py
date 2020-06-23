@@ -1,24 +1,23 @@
 import ee
 
 
-def mask_landsat_sr(masks, temp_th=None):
+def mask_landsat_sr(masks, T_threshold=None):
+
     dict_mask = {'cloud': ee.Number(2).pow(5).int(),
                  'cshadow': ee.Number(2).pow(3).int(),
                  'snow': ee.Number(2).pow(4).int()}
-
     sel_masks = [dict_mask[x] for x in masks]
     bits = ee.Number(1)
-
     for m in sel_masks:
         bits = ee.Number(bits.add(m))
 
-    if temp_th is not None:
+    if T_threshold is not None:
         def wrap(img):
             qa = img.select('pixel_qa')
             mask = (qa.bitwiseAnd(bits).eq(0)).Not()
 
             bt = img.select('TIR')
-            temp_th = (temp_th + 273.15) * 10
+            temp_th = (T_threshold + 273.15) * 10
             bt_mask = bt.lt(temp_th)
 
             mask = (mask.multiply(bt_mask)).Not()
