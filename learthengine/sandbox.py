@@ -31,6 +31,55 @@ composite.img_composite(**kwargs)
 
 # pip install --upgrade git+https://github.com/leonsnill/learthengine.git
 
+
+import ee
+ee.Initialize()
+
+kwargs = {
+    'sensor': 'LS',
+    'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'pixel_resolution': 30,
+    'years': [2019, 2019],
+    'months': [1, 5],
+    'cloud_cover': 60,
+    'masks': ['cloud', 'cshadow', 'snow'],
+    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'exclude_slc_off': False,
+    'export_option': 'Drive',
+    'asset_path': "users/leonxnill/Addis/",
+    'export_name': 'ADDIS',
+    'lst_threshold': 5,
+    'wv_method': 'ERA5'
+}
+
+from learthengine import composite
+
+composite.img_layerstack(**kwargs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import ee
 ee.Initialize()
 
