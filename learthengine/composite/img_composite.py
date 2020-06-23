@@ -17,7 +17,7 @@ import datetime
 import numpy as np
 
 
-def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, masks=None, temp_th_mask=None,
+def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, masks=None, T_threshold=None,
                   roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0, target_doys=None,
                   doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50, weight_doy=0.4,
                   weight_year=0.4, weight_cloud=0.2, exclude_slc_off=False, export_option="Drive", asset_path=None,
@@ -127,7 +127,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l5) \
-                .map(prepro.mask_landsat_sr(masks, temp_th=temp_th_mask)) \
+                .map(prepro.mask_landsat_sr(masks, T_threshold=T_threshold)) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
                 .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -136,7 +136,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l7) \
-                .map(prepro.mask_landsat_sr(masks, temp_th=temp_th_mask)) \
+                .map(prepro.mask_landsat_sr(masks, T_threshold=T_threshold)) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
                 .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
@@ -149,7 +149,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .filter(time_filter) \
                 .filter(ee.Filter.lt('CLOUD_COVER_LAND', cloud_cover)) \
                 .map(prepro.rename_bands_l8) \
-                .map(prepro.mask_landsat_sr(masks, temp_th=temp_th_mask)) \
+                .map(prepro.mask_landsat_sr(masks, T_threshold=T_threshold)) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'], ['TIR'])) \
                 .map(prepro.scale_img(0.1, ['TIR'], ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 

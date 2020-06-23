@@ -7,7 +7,7 @@ kwargs = {
     'pixel_resolution': 30,
     'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'temp_th_mask': 18,
+    'T_threshold': 18,
     'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'reducer': ee.Reducer.median(),
