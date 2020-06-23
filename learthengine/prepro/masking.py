@@ -15,8 +15,7 @@ def mask_landsat_sr(masks, T_threshold=None):
         def wrap(img):
             qa = img.select('pixel_qa')
 
-            cloudbit = ee.Number(1)
-            cloudbit = ee.Number(cloudbit.add(ee.Number(2).pow(5).int()))
+            cloudbit = ee.Number(2).pow(5).int()
             cloudmask = (qa.bitwiseAnd(cloudbit).eq(0)).Not()
 
             bt = img.select('TIR')
