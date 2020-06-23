@@ -1,5 +1,6 @@
 import ee
 ee.Initialize()
+from learthengine import composite
 
 kwargs = {
     'sensor': 'LS',
@@ -7,23 +8,21 @@ kwargs = {
     'pixel_resolution': 30,
     'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'T_threshold': 18,
+    'T_threshold': None,
     'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
-    'reducer': ee.Reducer.median(),
-    'target_years': [1985, 1990, 1995, 2000, 2010, 2015, 2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'reducer': ee.Reducer.percentile([90]),
+    'target_years': [2005],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 1,
     'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 182,
-    'exclude_slc_off': True,
+    'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'TC_MED_ADDIS',
+    'export_name': 'TC_P90_ADDIS',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
-
-from learthengine import composite
 
 composite.img_composite(**kwargs)
 
