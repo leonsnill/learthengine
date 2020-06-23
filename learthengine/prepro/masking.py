@@ -1,7 +1,7 @@
 import ee
 
 
-def mask_landsat_sr(masks):
+def mask_landsat_sr(masks, temp_th=None):
     dict_mask = {'cloud': ee.Number(2).pow(5).int(),
                  'cshadow': ee.Number(2).pow(3).int(),
                  'snow': ee.Number(2).pow(4).int()}
@@ -12,11 +12,25 @@ def mask_landsat_sr(masks):
     for m in sel_masks:
         bits = ee.Number(bits.add(m))
 
-    def wrap(img):
-        qa = img.select('pixel_qa')
-        mask = qa.bitwiseAnd(bits).eq(0)
-        return img.updateMask(mask) \
-                  .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
+    if temp_th is not None:
+        def wrap(img):
+            qa = img.select('pixel_qa')
+            mask = (qa.bitwiseAnd(bits).eq(0)).Not()
+
+            bt = img.select('TIR')
+            temp_th = (temp_th + 273.15) * 10
+            bt_mask = bt.lt(temp_th)
+
+            mask = (mask.multiply(bt_mask)).Not()
+
+            return img.updateMask(mask) \
+                      .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
+    else:
+        def wrap(img):
+            qa = img.select('pixel_qa')
+            mask = qa.bitwiseAnd(bits).eq(0)
+            return img.updateMask(mask) \
+                      .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap
 
 
