@@ -66,7 +66,7 @@ def score(w_doyscore, w_yearscore, w_cloudscore):
                 'W_YEARSCORE': w_yearscore,
                 'W_CLOUDSCORE': w_cloudscore
             }
-        ).rename('SCORE')
+        ).rename('PBC')
         SCORE = SCORE.divide(10000)
         return img.addBands(SCORE)
     return wrap
