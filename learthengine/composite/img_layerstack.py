@@ -86,7 +86,6 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         epsg = generals.find_utm(roi_geom)
 
     # time
-
     temp_filter = []
     if years is not None:
         min_year = min(years)
@@ -227,8 +226,8 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
             imgCol_SR = imgCol_SR.map(lst.mask_lst(threshold=lst_threshold, scale=0.01))
 
     dates = get_dates(imgCol_SR)
-    range = dates.distinct()
-    newcol = mosaic(imgCol_SR.select(bands), range)
+    date_range = dates.distinct()
+    newcol = mosaic(imgCol_SR.select(bands), date_range)
 
     for band in bands:
         lyr = layerstack(newcol.select(band))

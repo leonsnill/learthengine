@@ -37,20 +37,20 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'LS',
-    'bands': ['B'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'sensor': 'SL',
+    'bands': ['EVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'years': [2002, 2002],
-    'months': [1, 5],
+    'years': [2019, 2020],
+    'months': [5, 9],
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [102.92, 21.43, 103.22, 21.16],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [-134.424, 68.22, -133.015, 68.729],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'VIET',
+    'export_name': 'MRD',
     'lst_threshold': 5,
-    'wv_method': 'ERA5'
+    'wv_method': 'NCEP'
 }
 
 from learthengine import composite
