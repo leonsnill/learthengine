@@ -314,7 +314,7 @@ for year in TARGET_YEARS:
 
             imgCol_SR = imgCol_SR.map(composite.score(w_doyscore, w_yearscore, w_cloudscore))
 
-            img_composite = imgCol_SR.qualityMosaic(SCORE)
+            img_composite = imgCol_SR.qualityMosaic('PBC')
             img_composite = img_composite.select(BANDS)
             img_composite = img_composite.multiply(10000)
             img_composite = img_composite.int16()

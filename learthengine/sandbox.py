@@ -4,23 +4,23 @@ from learthengine import composite
 
 kwargs = {
     'sensor': 'LS',
-    'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 30,
-    'cloud_cover': 20,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
     'T_threshold': None,
     'roi': [102.92, 21.43, 103.22, 21.16],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
-    'reducer': ee.Reducer.median(),
-    'target_years': [2002, 2011, 2019],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
-    'surr_years': 1,
-    'target_doys': [182],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 182,
+    'reducer': ee.Reducer.percentile([10]),
+    'target_years': [2000, 2010, 2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'surr_years': 0,
+    'target_doys': [183],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+    'doy_range': 365,
     'doy_vs_year': 30,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'VIR_MED_VIETNAM2',
+    'export_name': 'NDVI_P10_VIETNAM',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
@@ -38,17 +38,17 @@ ee.Initialize()
 
 kwargs = {
     'sensor': 'LS',
-    'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'bands': ['B'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'years': [2019, 2019],
+    'years': [2002, 2002],
     'months': [1, 5],
-    'cloud_cover': 60,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
-    'exclude_slc_off': False,
+    'roi': [102.92, 21.43, 103.22, 21.16],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'ADDIS',
+    'export_name': 'VIET',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
@@ -85,17 +85,17 @@ import ee
 ee.Initialize()
 
 sensor='LS'
-bands = ['LST']
+bands = ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
 pixel_resolution = 30
-cloud_cover=70
+cloud_cover=50
 masks=['cloud', 'cshadow', 'snow']
-roi=[38.4824, 8.7550, 39.0482, 9.2000]
+roi=[102.92, 21.43, 103.22, 21.16]
 score = "STM"
-reducer=ee.Reducer.mean()
-target_years=[1995, 2015]
-surr_years=1
-target_doys=[182]
-doy_range=60
+reducer=ee.Reducer.percentile([90])
+target_years=[2002]
+surr_years=0
+target_doys=[183]
+doy_range=365
 epsg=None
 doy_vs_year=20
 min_clouddistance=10
@@ -103,7 +103,7 @@ max_clouddistance=50
 weight_doy=0.4
 weight_year=0.4
 weight_cloud=0.2
-exclude_slc_off=False
+exclude_slc_off=True
 export_option="Drive"
 asset_path="users/leonxnill/Addis/"
 export_name='LST_MED_ADDIS_1995'
