@@ -87,19 +87,18 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
 
     # time
     temp_filter = []
-    if years is not None:
-        min_year = min(years)
-        max_year = max(years)
-        for y in range(min_year, max_year+1):
-            if months is None:
-                min_date = str(y)+"-01-01"
-                max_date = str(y) + "-12-31"
+    min_year = min(years)
+    max_year = max(years)
+    for y in range(min_year, max_year+1):
+        if months is None:
+            min_date = str(y)+"-01-01"
+            max_date = str(y)+"-12-31"
+            temp_filter.append(ee.Filter.date(min_date, max_date))
+        else:
+            for m in months:
+                min_date = str(y) + "-"+ str(m) +"-01"
+                max_date = last_day_of_month(datetime.date(y, m, 1)).strftime('%Y-%m-%d')
                 temp_filter.append(ee.Filter.date(min_date, max_date))
-            else:
-                for m in months:
-                    min_date = str(y) + "-"+ str(m) +"-01"
-                    max_date = last_day_of_month(datetime.date(y, m, 1)).strftime('%Y-%m-%d')
-                    temp_filter.append(ee.Filter.date(min_date, max_date))
 
     time_filter = ee.Filter.Or(*temp_filter)
 
@@ -234,7 +233,7 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         lyr = lyr.multiply(10000)
         lyr = lyr.toInt16()
 
-        out_file = sensor + '_layerstack_' + export_name + '_' + band + '_' + str(years[0]) + '-' + str(years[1]) + \
+        out_file = sensor + '_layerstack_' + export_name + '_' + band + '_' + str(min_year) + '-' + str(max_year) + \
                    '_' + str(months[0]) + '-' + str(months[1])
 
         out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,

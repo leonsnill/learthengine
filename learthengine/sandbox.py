@@ -40,8 +40,8 @@ kwargs = {
     'sensor': 'SL',
     'bands': ['EVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'years': [2019, 2020],
-    'months': [5, 9],
+    'years': [2019],
+    'months': [5, 6, 7, 8, 9],
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
     'roi': [-134.424, 68.22, -133.015, 68.729],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
