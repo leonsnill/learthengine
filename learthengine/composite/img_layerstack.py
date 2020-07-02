@@ -79,6 +79,8 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         epsg = generals.find_utm(roi_geom)
 
     # time
+    years = [years] if isinstance(years, int) else years
+    months = [months] if isinstance(months, int) else months
     time_filter = generals.time_filter(l_years=years, l_months=months)
 
     # image collections
@@ -208,8 +210,8 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         lyr = lyr.multiply(10000)
         lyr = lyr.toInt16()
 
-        out_file = sensor + '_layerstack_' + export_name + '_' + band + '_' + str(min_year) + '-' + str(max_year) + \
-                   '_' + str(months[0]) + '-' + str(months[1])
+        out_file = sensor + '_layerstack_' + export_name + '_' + band + '_' + str(min(years)) + '-' + str(max(years))+ \
+                   '_' + str(min(months)) + '-' + str(max(months))
 
         out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,
                                             scale=pixel_resolution,
