@@ -97,31 +97,17 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
     for year in target_years:
         for i in range(len(target_doys)):
 
-            # time
+            # time definition
             iter_target_doy = target_doys[i]
-
             year_min = year - surr_years
             year_max = year + surr_years
-
-            temp_filter = []
-            for t in range(year_min, year_max+1):
-                temp_target_doy = datetime.datetime(t, 1, 1) + datetime.timedelta(iter_target_doy - 1)
-                temp_min_date = (temp_target_doy - datetime.timedelta(doy_range - 1)).strftime('%Y-%m-%d')
-                temp_max_date = (temp_target_doy + datetime.timedelta(doy_range - 1)).strftime('%Y-%m-%d')
-                temp_filter.append(ee.Filter.date(temp_min_date, temp_max_date))
-
-            time_filter = ee.Filter.Or(*temp_filter)
-
-
+            time_filter = generals.time_filter(l_years=[year_min, year_max], l_doys=iter_target_doy,
+                                               doy_offset=doy_range)
+            # server side cloud distance
             REQ_DISTANCE = ee.Number(max_clouddistance)
             MIN_DISTANCE = ee.Number(min_clouddistance)
 
-            # .filter(ee.Filter.calendarRange(year_min, year_max, 'year')) \
-            # .filter(ee.Filter.calendarRange(iter_target_doy_min, iter_target_doy_max, 'day_of_year')) \
-
-            # --------------------------------------------------
-            # IMPORT ImageCollections
-            # --------------------------------------------------
+            # import collections
             imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
                 .filterBounds(roi_geom) \
                 .filter(time_filter) \

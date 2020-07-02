@@ -12,13 +12,6 @@ from learthengine import generals
 from learthengine import prepro
 from learthengine import lst
 
-import datetime
-
-
-def last_day_of_month(any_day):
-    next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
-    return next_month - datetime.timedelta(days=next_month.day)
-
 
 def layerstack(imgCol):
     # Create initial image
@@ -86,27 +79,9 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         epsg = generals.find_utm(roi_geom)
 
     # time
-    temp_filter = []
-    min_year = min(years)
-    max_year = max(years)
-    for y in range(min_year, max_year+1):
-        if months is None:
-            min_date = str(y)+"-01-01"
-            max_date = str(y)+"-12-31"
-            temp_filter.append(ee.Filter.date(min_date, max_date))
-        else:
-            for m in months:
-                min_date = str(y) + "-"+ str(m) +"-01"
-                max_date = last_day_of_month(datetime.date(y, m, 1)).strftime('%Y-%m-%d')
-                temp_filter.append(ee.Filter.date(min_date, max_date))
+    time_filter = generals.time_filter(l_years=years, l_months=months)
 
-    time_filter = ee.Filter.Or(*temp_filter)
-
-
-
-    # --------------------------------------------------
-    # IMPORT ImageCollections
-    # --------------------------------------------------
+    # image collections
     imgCol_L5_SR = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR') \
         .filterBounds(roi_geom) \
         .filter(time_filter) \
