@@ -1,32 +1,54 @@
 import ee
 
 
-def mask_landsat_sr(masks, T_threshold=None):
+def mask_landsat_sr(masks, T_threshold=None, omission=True):
 
     dict_mask = {'cloud': ee.Number(2).pow(5).int(),
                  'cshadow': ee.Number(2).pow(3).int(),
                  'snow': ee.Number(2).pow(4).int()}
 
     if T_threshold is not None:
-        sel_masks = [dict_mask[x] for x in masks if x != 'cloud']
-        bits = ee.Number(1)
-        for m in sel_masks:
-            bits = ee.Number(bits.add(m))
-        def wrap(img):
-            qa = img.select('pixel_qa')
 
-            cloudbit = ee.Number(2).pow(5).int()
-            cloudmask = (qa.bitwiseAnd(cloudbit).eq(0)).Not()
+        if omission:
+            sel_masks = [dict_mask[x] for x in masks if x != 'cloud']
+            bits = ee.Number(1)
+            for m in sel_masks:
+                bits = ee.Number(bits.add(m))
 
-            bt = img.select('TIR')
-            temp_th = (T_threshold + 273.15) * 10
-            bt_mask = bt.lt(temp_th)
+            def wrap(img):
+                qa = img.select('pixel_qa')
 
-            bt_mask = (cloudmask.multiply(bt_mask)).Not()
-            mask = (qa.bitwiseAnd(bits).eq(0)).And(bt_mask)
+                cloudbit = ee.Number(2).pow(5).int()
+                cloudmask = (qa.bitwiseAnd(cloudbit).eq(0)).Not()
 
-            return img.updateMask(mask) \
-                      .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
+                bt = img.select('TIR')
+                temp_th = (T_threshold + 273.15) * 10
+                bt_mask = bt.lt(temp_th)  # 1 cloud, 0 clear
+
+                bt_mask = (cloudmask.multiply(bt_mask)).Not()
+                mask = (qa.bitwiseAnd(bits).eq(0)).And(bt_mask)
+
+                return img.updateMask(mask) \
+                    .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
+        # comission
+        else:
+            sel_masks = [dict_mask[x] for x in masks]
+            bits = ee.Number(1)
+            for m in sel_masks:
+                bits = ee.Number(bits.add(m))
+
+            def wrap(img):
+                qa = img.select('pixel_qa')
+                mask = qa.bitwiseAnd(bits).eq(0)
+
+                bt = img.select('TIR')
+                temp_th = (T_threshold + 273.15) * 10
+                bt_mask = bt.gt(temp_th)  # 1 clear, 0 cloud
+
+                mask = mask.multiply(bt_mask)
+
+                return img.updateMask(mask) \
+                    .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     else:
         sel_masks = [dict_mask[x] for x in masks]
         bits = ee.Number(1)

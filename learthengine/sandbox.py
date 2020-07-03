@@ -4,23 +4,23 @@ from learthengine import composite
 
 kwargs = {
     'sensor': 'LS',
-    'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 30,
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
     'T_threshold': None,
-    'roi': [102.92, 21.43, 103.22, 21.16],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
-    'score': 'STM',
-    'reducer': ee.Reducer.percentile([10]),
-    'target_years': [2000, 2010, 2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
-    'surr_years': 0,
+    'roi': [-40, -7.6, -37.45, -11.17],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'score': 'PBC',
+    'reducer': ee.Reducer.median(),
+    'target_years': [1984, 1994, 2014, 2019],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'surr_years': 1,
     'target_doys': [183],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 365,
+    'doy_range': 100,
     'doy_vs_year': 30,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'NDVI_P10_VIETNAM',
+    'export_name': 'SPEC_CAATINGA',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
