@@ -50,7 +50,7 @@ def mosaic(imgCol, date):
     return ee.ImageCollection(ee.List(date.iterate(wrap, ee.List([]))))
 
 
-def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resolution=30, cloud_cover=70,
+def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resolution=None, cloud_cover=70,
                   masks=None, roi=None, epsg=None, exclude_slc_off=False, export_option="Drive", asset_path=None,
                   export_name=None, lst_threshold=None, wv_method="NCEP"):
 
@@ -60,6 +60,8 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
     if masks is None:
         masks = ['cloud', 'cshadow', 'snow']
         print("No masks specified. Masking clouds, cloud shadows and snow.")
+    if pixel_resolution is None:
+        pixel_resolution = 30
     if sensor is None:
         sensor = "LS"
         print("No sensor specified. Landsat it is.")

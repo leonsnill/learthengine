@@ -49,7 +49,7 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Asset',
     'asset_path': "users/leonxnill/Nigeria/",
-    'export_name': 'S2_L2A_BOKKOS_NIR_2019-2020',
+    'export_name': 'BOKKOS',
     'lst_threshold': None,
     'wv_method': 'NCEP'
 }
