@@ -3,24 +3,25 @@ ee.Initialize()
 from learthengine import composite
 
 kwargs = {
-    'sensor': 'LS',
+    'sensor': 'L5',
     'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 30,
-    'cloud_cover': 50,
+    'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
     'T_threshold': None,
-    'roi': [-40, -7.6, -37.45, -11.17],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
-    'score': 'PBC',
+    'T_omission': False,
+    'roi': [29.120, 50.892, 30.965, 51.901],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'score': 'STM',
     'reducer': ee.Reducer.median(),
-    'target_years': [1984, 1994, 2014, 2019],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
-    'surr_years': 1,
+    'target_years': [1985],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'surr_years': 0,
     'target_doys': [183],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 100,
-    'doy_vs_year': 30,
+    'doy_range': 80,
+    'doy_vs_year': 20,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'SPEC_CAATINGA',
+    'export_name': 'SPEC_MED_TSCHERNOBYL',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
@@ -37,19 +38,19 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'SL',
-    'bands': ['EVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
-    'pixel_resolution': 30,
-    'years': [2019],
-    'months': [5, 6, 7, 8, 9],
+    'sensor': 'S2_L2A',
+    'bands': ['NIR'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'pixel_resolution': 10,
+    'years': [2019, 2020],
+    'months': list(range(1, 13)),
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [-134.424, 68.22, -133.015, 68.729],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [8.95, 9.30, 9.01, 9.34],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'exclude_slc_off': True,
-    'export_option': 'Drive',
-    'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'MRD',
-    'lst_threshold': 5,
+    'export_option': 'Asset',
+    'asset_path': "users/leonxnill/Nigeria/",
+    'export_name': 'S2_L2A_BOKKOS_NIR_2019-2020',
+    'lst_threshold': None,
     'wv_method': 'NCEP'
 }
 

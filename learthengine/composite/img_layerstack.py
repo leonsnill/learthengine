@@ -213,11 +213,23 @@ def img_layerstack(sensor='LS', bands=None, years=None, months=None, pixel_resol
         out_file = sensor + '_layerstack_' + export_name + '_' + band + '_' + str(min(years)) + '-' + str(max(years))+ \
                    '_' + str(min(months)) + '-' + str(max(months))
 
-        out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,
-                                            scale=pixel_resolution,
-                                            maxPixels=1e13,
-                                            region=roi_geom['coordinates'][0],
-                                            crs=epsg)
+        # export image
+        if export_option == "Drive":
+            out = ee.batch.Export.image.toDrive(image=lyr, description=out_file,
+                                                scale=pixel_resolution,
+                                                maxPixels=1e13,
+                                                region=roi_geom['coordinates'][0],
+                                                crs=epsg)
+        elif export_option == "Asset":
+            out = ee.batch.Export.image.toAsset(image=lyr, description=out_file,
+                                                assetId=asset_path + out_file,
+                                                scale=pixel_resolution,
+                                                maxPixels=1e13,
+                                                region=roi_geom['coordinates'][0],
+                                                crs=epsg)
+        else:
+            print("Invalid export option specified. Must be one of 'Drive' or 'Asset'")
+
         process = ee.batch.Task.start(out)
 
         return print("Submitted to Server.")
