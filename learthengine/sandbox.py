@@ -3,25 +3,25 @@ ee.Initialize()
 from learthengine import composite
 
 kwargs = {
-    'sensor': 'L5',
-    'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'sensor': 'LS',
+    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 30,
     'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
     'T_threshold': None,
     'T_omission': False,
-    'roi': [29.120, 50.892, 30.965, 51.901],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'reducer': ee.Reducer.median(),
-    'target_years': [1985],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'target_years': [2019, 2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 0,
-    'target_doys': [183],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 80,
+    'target_doys': [136, 210],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+    'doy_range': 20,
     'doy_vs_year': 20,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'SPEC_MED_TSCHERNOBYL',
+    'export_name': 'TC_MED_HUNABO',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }
@@ -38,18 +38,17 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'S2_L2A',
-    'bands': ['NIR'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
-    'pixel_resolution': 10,
+    'sensor': 'LS',
+    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'pixel_resolution': 30,
     'years': [2019, 2020],
     'months': list(range(1, 13)),
-    'cloud_cover': 50,
+    'cloud_cover': 60,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [8.95, 9.30, 9.01, 9.34],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
-    'exclude_slc_off': True,
-    'export_option': 'Asset',
-    'asset_path': "users/leonxnill/Nigeria/",
-    'export_name': 'BOKKOS',
+    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'exclude_slc_off': False,
+    'export_option': 'Drive',
+    'export_name': 'ADDIS_ABABA',
     'lst_threshold': None,
     'wv_method': 'NCEP'
 }

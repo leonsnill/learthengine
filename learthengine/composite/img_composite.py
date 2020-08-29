@@ -206,7 +206,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 imgCol_SR = imgCol_SR.map(prepro.evi())
             if 'NDWI1' in bands:
                 imgCol_SR = imgCol_SR.map(prepro.ndwi1)
-            if 'NDWI2' in bands:
+            if ('NDWI2' in bands) or ('LST' in bands):
                 imgCol_SR = imgCol_SR.map(prepro.ndwi2)
             if 'NDBI' in bands:
                 imgCol_SR = imgCol_SR.map(prepro.ndbi)
