@@ -16,10 +16,10 @@ from learthengine import lst
 def layerstack(imgCol):
     # Create initial image
     first = ee.Image(imgCol.first())
-    datestring = ee.String(first.date().format("YYYY-MM-dd"))
-    sensorstring = ee.String(first.get('satellite_id'))
-    namestring = ee.String(sensorstring).cat(datestring)
-    first = first.rename(namestring)
+    #datestring = ee.String(first.date().format("YYYY-MM-dd"))
+    #sensorstring = ee.String(first.get('satellite_id'))
+    #namestring = ee.String(sensorstring).cat(datestring)
+    #first = first.rename(namestring)
     # Write a function that appends a band to an image
     def addband(img, previous):
         datestring = ee.String(img.date().format("YYYY-MM-dd"))
