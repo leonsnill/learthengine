@@ -6,24 +6,24 @@ kwargs = {
     'sensor': 'S2_L2A',
     'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 10,
-    'cloud_cover': 20,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
     'T_threshold': None,
     'T_omission': False,
-    'roi': [13.103, 57.294, 13.4647, 57.506],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [8.7375, 9.728, 9.160, 10.022],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
     'reducer': ee.Reducer.median(),
-    'target_years': [2019],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'target_years': [2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 0,
-    'target_doys': [97],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 2,
+    'target_doys': [197],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+    'doy_range': 30,
     'doy_vs_year': 20,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'VISNIR_HUNNABO',
+    'export_name': 'VISNIR_JUTH',
     'lst_threshold': 5,
     'wv_method': 'ERA5'
 }

@@ -155,10 +155,6 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_cdi(-0.5)) \
                 .map(prepro.rename_bands_s2) \
                 .map(prepro.mask_s2_scl) \
-                .map(prepro.applyHollstein(options=('cloud', 'snow', 'shadow', 'water', 'cirrus'),  # code from https://github.com/gee-community/gee_tools/blob/master/geetools/cloud_mask.py
-                   aerosol='AEROSOL', blue='B', green='G', red_edge1='RE1',
-                   red_edge2='RE2', red_edge3='RE3', red_edge4='RE4',
-                   water_vapor='WV', cirrus='CIRRUS', swir='SWIR1')) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
 
             if 'LST' in bands:
