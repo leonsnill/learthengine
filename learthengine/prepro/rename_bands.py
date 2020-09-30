@@ -20,7 +20,9 @@ def rename_bands_l8(img):
 
 
 def rename_bands_s2(img):
-    bands = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12', 'QA60', 'SCL']
-    new_bands = ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2', 'QA60', 'SCL']
+    bands = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B9', 'B10',
+             'B11', 'B12', 'QA60', 'SCL']
+    new_bands = ['AEROSOL', 'B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'WV', 'CIRRUS',
+                 'SWIR1', 'SWIR2', 'QA60', 'SCL']
     return img.select(bands).rename(new_bands).set('satellite_id', 'S2_')
 
