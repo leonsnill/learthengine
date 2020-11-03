@@ -2,30 +2,32 @@ import ee
 ee.Initialize()
 from learthengine import composite
 
+feno = [25.209, 69.377, 26.943, 69.795]
+
 kwargs = {
     'sensor': 'S2_L2A',
-    'bands': ['NDVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'bands': ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 10,
     'cloud_cover': 50,
-    'masks': ['cloud', 'cshadow', 'snow'],
+    'masks': ['cloud', 'cshadow'],  # 'cloud', 'cshadow', 'snow'
     'T_threshold': None,
     'T_omission': False,
-    'roi': [8.545, 9.080, 9.600, 10.393],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': feno,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
-    'reducer': ee.Reducer.max(),
+    'reducer': ee.Reducer.percentile([75]),
     'target_years': [2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 0,
     'target_doys': [166, 197, 228, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 15,
     'doy_vs_year': 20,
-    'exclude_slc_off': True,
+    'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'NDVI_P75_JUTH',
+    'export_name': 'P75_Kara-Pais',
     'lst_threshold': 5,
-    'wv_method': 'ERA5'
+    'wv_method': 'NCEP'
 }
 
 composite.img_composite(**kwargs)
@@ -40,17 +42,17 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'L7',
-    'bands': ['LST'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
+    'sensor': 'LS',
+    'bands': ['EVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
     'pixel_resolution': 30,
-    'years': [2019],
-    'months': list(range(2, 4)),
-    'cloud_cover': 60,
+    'years': [1985, 2020],
+    'months': list(range(5, 10)),
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [38.4824, 8.7550, 39.0482, 9.2000],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': [26.588, 70.248, 26.845, 70.329],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'exclude_slc_off': False,
     'export_option': 'Drive',
-    'export_name': 'ADDIS_ABABA',
+    'export_name': 'Finnmark',
     'lst_threshold': None,
     'wv_method': 'NCEP'
 }

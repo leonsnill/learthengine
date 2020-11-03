@@ -146,7 +146,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_cdi(-0.5)) \
                 .map(prepro.rename_bands_s2) \
                 .map(prepro.mask_s2) \
-                .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
+                .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2']))
 
             imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
                 .filterBounds(roi_geom) \
@@ -155,7 +155,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_cdi(-0.5)) \
                 .map(prepro.rename_bands_s2) \
                 .map(prepro.mask_s2_scl) \
-                .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']))
+                .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2']))
 
             if 'LST' in bands:
                 if imgCol_L5_SR.size().getInfo() > 0:
