@@ -147,7 +147,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.rename_bands_s2) \
                 .map(prepro.mask_s2) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2']))
-            '''
+
             imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
                 .filterBounds(roi_geom) \
                 .filter(time_filter) \
@@ -155,14 +155,6 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 .map(prepro.mask_s2_cdi(-0.5)) \
                 .map(prepro.rename_bands_s2) \
                 .map(prepro.mask_s2_scl) \
-                .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2']))
-            '''
-            imgCol_S2_L2A = ee.ImageCollection('COPERNICUS/S2_SR') \
-                .filterBounds(roi_geom) \
-                .filter(time_filter) \
-                .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_cover)) \
-                .map(prepro.mask_s2_sr(cdi=-0.5)) \
-                .map(prepro.rename_bands_s2) \
                 .map(prepro.scale_img(0.0001, ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2']))
 
             if 'LST' in bands:

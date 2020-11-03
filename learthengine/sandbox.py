@@ -6,26 +6,26 @@ feno = [25.209, 69.377, 26.943, 69.795]
 
 kwargs = {
     'sensor': 'S2_L2A',
-    'bands': ['B', 'G', 'R'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
-    'pixel_resolution': 10,
+    'bands': ['B', 'G', 'R', 'NIR', 'RE1', 'RE2', 'RE3', 'RE4', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'pixel_resolution': 20,
     'cloud_cover': 50,
-    'masks': ['cloud', 'cshadow'],  # 'cloud', 'cshadow', 'snow'
+    'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
     'T_threshold': None,
     'T_omission': False,
     'roi': feno,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
-    'reducer': ee.Reducer.percentile([75]),
+    'reducer': ee.Reducer.median(),
     'target_years': [2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 0,
-    'target_doys': [197],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 15,
+    'target_doys': [212],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+    'doy_range': 46,
     'doy_vs_year': 20,
     'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'MED_Kara-Pais-new',
+    'export_name': 'MED_KARAPAIS',
     'lst_threshold': 5,
     'wv_method': 'NCEP'
 }
