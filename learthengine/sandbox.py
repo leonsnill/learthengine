@@ -8,7 +8,7 @@ kwargs = {
     'sensor': 'S2_L2A',
     'bands': ['B', 'G', 'R', 'RE1', 'RE2', 'RE3', 'NIR', 'RE4', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 10,
-    'cloud_cover': 50,
+    'cloud_cover': 10,
     'masks': ['cloud', 'cshadow'],  # 'cloud', 'cshadow', 'snow'
     'T_threshold': None,
     'T_omission': False,
@@ -16,7 +16,7 @@ kwargs = {
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
-    'reducer': ee.Reducer.percentile([75]),
+    'reducer': ee.Reducer.median(),
     'target_years': [2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 0,
     'target_doys': [166, 197, 228, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
@@ -25,7 +25,7 @@ kwargs = {
     'exclude_slc_off': False,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'P75_Kara-Pais',
+    'export_name': 'MED_Kara-Pais10',
     'lst_threshold': 5,
     'wv_method': 'NCEP'
 }
