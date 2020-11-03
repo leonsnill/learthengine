@@ -8,7 +8,7 @@ kwargs = {
     'sensor': 'S2_L2A',
     'bands': ['B', 'G', 'R'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 10,
-    'cloud_cover': 10,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow'],  # 'cloud', 'cshadow', 'snow'
     'T_threshold': None,
     'T_omission': False,

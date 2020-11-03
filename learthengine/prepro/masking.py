@@ -96,7 +96,7 @@ def mask_s2_sr(cdi=-0.5):
             scl.neq(10)).And(
             scl.neq(11))
 
-        mask = mask1.Or(mask2)
+        mask = mask1.And(mask2)
 
         return img.addBands(mask).updateMask(mask) \
            .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
