@@ -234,7 +234,9 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
             # apply percentile masking (optional)
             if mask_percentiles:
-                imgCol_SR = imgCol_SR.map(prepro.mask_percentiles(band_lwr='R', band_upr='B', lwr=10, upr=90))
+                blwr = imgCol_SR.select('R').reduce(ee.Reducer.percentile([10]))
+                bupr = imgCol_SR.select('B').reduce(ee.Reducer.percentile([90]))
+                imgCol_SR = imgCol_SR.map(prepro.mask_percentiles(band_lwr='R', band_upr='B', lwr=blwr, upr=bupr))
 
             if score == 'PBC':
                 # --------------------------------------------------

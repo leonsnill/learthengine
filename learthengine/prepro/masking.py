@@ -105,20 +105,17 @@ def focal_mask(kernelsize=10):
     return wrap
 
 
-def mask_percentiles(band_lwr='R', band_upr='B', lwr=10, upr=90):
+def mask_percentiles(band_lwr='R', band_upr='B', lwr=0.1, upr=0.8):
     def wrap(img):
-        blwr = img.select(band_lwr).reduce(ee.Reducer.percentile([lwr]))
-        bupr = img.select(band_upr).reduce(ee.Reducer.percentile([upr]))
-
-        mask = blwr.where(img.expression('band <= lower', {
+        mask = lwr.where(img.expression('band <= lower', {
             'band': img.select(band_lwr),
-            'lower': blwr}), 0)
+            'lower': lwr}), 0)
         mask = mask.where(img.expression('band > lower', {
             'band': img.select(band_upr),
-            'lower': blwr}), 1)
+            'lower': lwr}), 1)
         mask = mask.where(img.expression('band >= upper', {
             'band': img.select(band_upr),
-            'upper': bupr}), 0)
+            'upper': upr}), 0)
         return img.updateMask(mask) \
             .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap

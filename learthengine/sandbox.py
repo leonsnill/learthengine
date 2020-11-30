@@ -11,9 +11,9 @@ charp = [65.736, 66.682, 66.364, 66.882]
 yarsk = [67.927, 67.090, 68.303, 67.178]
 
 kwargs = {
-    'sensor': 'S2_L2A',
+    'sensor': 'LS',
     'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
-    'pixel_resolution': 20,
+    'pixel_resolution': 30,
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
     #'masks': [],
@@ -24,7 +24,7 @@ kwargs = {
     'min_clouddistance': 10,
     'max_clouddistance': 60,
     'reducer': ee.Reducer.median(), #ee.Reducer.intervalMean(10, 90),
-    'target_years': [2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'target_years': [1986, 2002, 2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 2,
     'target_doys': [166, 197, 228, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 15,
