@@ -110,15 +110,16 @@ def mask_percentiles(band_lwr='R', band_upr='B', lwr=10, upr=90):
         blwr = img.select(band_lwr)
         bupr = img.select(band_upr)
         mask_lwr = ee.Image(1)
-        mask_lwr = blwr.where(blwr.expression('band <= lower', {
+        mask_lwr = mask_lwr.where(blwr.expression('band <= lower', {
             'band': blwr,
             'lower': lwr}), 0)
         mask_upr = ee.Image(1)
-        mask_upr = bupr.where(bupr.expression('band >= upper', {
+        mask_upr = mask_upr.where(bupr.expression('band >= upper', {
             'band': bupr,
             'upper': upr}), 0)
         mask = mask_lwr.And(mask_upr)
-        return img.updateMask(mask)
+        return img.updateMask(mask) \
+            .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
     return wrap
 
 

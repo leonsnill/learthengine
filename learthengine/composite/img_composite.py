@@ -20,7 +20,7 @@ import numpy as np
 def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, masks=None, T_threshold=None,
                   T_omission=True, roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0,
                   target_doys=None, doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50,
-                  weight_doy=0.4, weight_year=0.4, weight_cloud=0.2, exclude_slc_off=False, export_option="Drive",
+                  weight_doy=0.4, weight_year=0.4, weight_cloud=0.2, mask_percentiles=False, exclude_slc_off=False, export_option="Drive",
                   asset_path=None, export_name=None, lst_threshold=None, wv_method="NCEP"):
     """
     Image compositing function capable of creating pixel-based composites (PBC) according to Griffiths et al. (2013):
@@ -231,6 +231,10 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             imgCol_SR = imgCol_SR.map(composite.fun_add_doy_band)
             imgCol_SR = imgCol_SR.map(composite.fun_addyearband)
             imgCol_SR = imgCol_SR.map(composite.fun_addcloudband(REQ_DISTANCE))
+
+            # apply percentile masking (optional)
+            if mask_percentiles:
+                imgCol_SR = imgCol_SR.map(prepro.mask_percentiles(band_lwr='R', band_upr='B', lwr=10, upr=90))
 
             if score == 'PBC':
                 # --------------------------------------------------
