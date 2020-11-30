@@ -35,7 +35,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
     :param cloud_cover:         (Int) maximum scene cloud cover. Default to 70.
     :param masks:               (List) of objects to mask. One of and default to ['cloud', 'cshadow', 'snow'].
     :param roi_geom:                 (List) of rectangle corner coordinates in [lon1, lat1, lon2, lat2]. Default to "Berlin".
-    :param score:               (Str) Which method to use for compositing. One of "PBC", "MAX_NDVI", "STM" or "NOBS"
+    :param score:               (Str) Which method to use for compositing. One of "PBC", "MAXNDVI", "STM" or "NOBS"
                                 (pixel wise number of observations). Default to "STM".
     :param reducer:             (ee.Reducer object) if score = "STM". Default to ee.Reducer.median().
     :param epsg:                (Str) EPSG code. Default to None will automatically detect UTM Zone.
@@ -309,7 +309,7 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
                 img_composite = img_composite.int16()
 
             else:
-                print("Invalid score specified. Must be one of 'PBC', 'MAX_NDVI', 'STM' or 'NOBS'")
+                print("Invalid score specified. Must be one of 'PBC', 'MAXNDVI', 'STM' or 'NOBS'")
 
 
             # output filename

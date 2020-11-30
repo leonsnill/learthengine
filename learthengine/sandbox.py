@@ -3,31 +3,39 @@ ee.Initialize()
 from learthengine import composite
 
 feno = [25.209, 69.377, 26.943, 69.795]
+prolif = [56.931, 66.873, 58.760, 67.5421]
+wc = [17.425, -35.082, 24.940, -30.285]
+ct = [17, -35, 21, -32]
+sa = [15.291, -35.207, 33.748, -21.878]
+charp = [65.736, 66.682, 66.364, 66.882]
+yarsk = [67.927, 67.090, 68.303, 67.178]
 
 kwargs = {
-    'sensor': 'S2_L2A',
-    'bands': ['B', 'G', 'R', 'NIR', 'RE1', 'RE2', 'RE3', 'RE4', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
-    'pixel_resolution': 20,
-    'cloud_cover': 50,
+    'sensor': 'LS',
+    'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'pixel_resolution': 30,
+    'cloud_cover': 70,
     'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
+    #'masks': [],
     'T_threshold': None,
     'T_omission': False,
-    'roi': feno,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': yarsk,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
-    'reducer': ee.Reducer.median(),
-    'target_years': [2020],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
-    'surr_years': 0,
-    'target_doys': [212],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 46,
-    'doy_vs_year': 20,
-    'exclude_slc_off': False,
+    'reducer': ee.Reducer.percentile([25]), #ee.Reducer.intervalMean(10, 90),
+    'target_years': [1986, 2002, 2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'surr_years': 2,
+    'target_doys': [166, 197, 228, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
+    'doy_range': 15,
+    'doy_vs_year': 60,
+    'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'MED_KARAPAIS',
+    'export_name': 'P25_YARSK_VIR',
     'lst_threshold': 5,
     'wv_method': 'NCEP'
+    #'epsg': 'EPSG:22293'
 }
 
 composite.img_composite(**kwargs)
@@ -42,17 +50,17 @@ import ee
 ee.Initialize()
 
 kwargs = {
-    'sensor': 'LS',
+    'sensor': 'S2_L2A',
     'bands': ['EVI'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']
-    'pixel_resolution': 30,
-    'years': [1985, 2020],
-    'months': list(range(5, 10)),
-    'cloud_cover': 50,
+    'pixel_resolution': 10,
+    'years': [2019, 2020],
+    'months': list(range(5, 9)),
+    'cloud_cover': 70,
     'masks': ['cloud', 'cshadow', 'snow'],
-    'roi': [26.588, 70.248, 26.845, 70.329],  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
+    'roi': charp,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'exclude_slc_off': False,
     'export_option': 'Drive',
-    'export_name': 'Finnmark',
+    'export_name': 'CHARP',
     'lst_threshold': None,
     'wv_method': 'NCEP'
 }
