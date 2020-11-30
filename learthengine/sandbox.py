@@ -13,7 +13,7 @@ yarsk = [67.927, 67.090, 68.303, 67.178]
 kwargs = {
     'sensor': 'S2_L2A',
     'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
-    'pixel_resolution': 10,
+    'pixel_resolution': 20,
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
     #'masks': [],

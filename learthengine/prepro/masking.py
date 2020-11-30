@@ -113,7 +113,7 @@ def mask_percentiles(band_lwr='R', band_upr='B', lwr=10, upr=90):
             'lower': lwr}), 0)
         mask = mask.where(img.expression('band > lower', {
             'band': img.select(band_upr),
-            'upper': upr}), 1)
+            'lower': lwr}), 1)
         mask = mask.where(img.expression('band >= upper', {
             'band': img.select(band_upr),
             'upper': upr}), 0)
