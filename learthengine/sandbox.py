@@ -11,10 +11,10 @@ charp = [65.736, 66.682, 66.364, 66.882]
 yarsk = [67.927, 67.090, 68.303, 67.178]
 
 kwargs = {
-    'sensor': 'LS',
+    'sensor': 'S2_L2A',
     'bands': ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
-    'pixel_resolution': 30,
-    'cloud_cover': 70,
+    'pixel_resolution': 10,
+    'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
     #'masks': [],
     'T_threshold': None,
@@ -23,8 +23,8 @@ kwargs = {
     'score': 'STM',
     'min_clouddistance': 10,
     'max_clouddistance': 60,
-    'reducer': ee.Reducer.percentile([25]), #ee.Reducer.intervalMean(10, 90),
-    'target_years': [1986, 2002, 2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
+    'reducer': ee.Reducer.median(), #ee.Reducer.intervalMean(10, 90),
+    'target_years': [2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 2,
     'target_doys': [166, 197, 228, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
     'doy_range': 15,
@@ -32,9 +32,10 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'P25_YARSK_VIR',
+    'export_name': 'MED_YARSK_VIR',
     'lst_threshold': 5,
-    'wv_method': 'NCEP'
+    'wv_method': 'NCEP',
+    'mask_percentiles': True
     #'epsg': 'EPSG:22293'
 }
 
