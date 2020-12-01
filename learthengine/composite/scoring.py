@@ -94,8 +94,7 @@ def fun_addcloudband(req_distance):
     def wrap(img):
         CLOUD_MASK = img.mask().select('R')
         CLOUD_DISTANCE = CLOUD_MASK.Not() \
-            .distance(ee.Kernel.euclidean(radius=req_distance, units='pixels')) \
-            .rename('CLOUD_DISTANCE')
+            .distance(ee.Kernel.euclidean(radius=req_distance, units='pixels'))
         #CLOUD_DISTANCE = CLOUD_DISTANCE.where(CLOUD_DISTANCE.lt(ee.Image.constant(1)), req_distance)
         #CLOUD_DISTANCE = CLOUD_DISTANCE.where(CLOUD_DISTANCE.gte(ee.Image.constant(req_distance)), req_distance)
         #CLOUD_DISTANCE = CLOUD_DISTANCE.where(CLOUD_MASK.Not(), 0)
@@ -106,5 +105,5 @@ def fun_addcloudband(req_distance):
         #CLIP_MAX = CLOUD_DISTANCE.lte(ee.Image.constant(req_distance))
         #CLOUD_DISTANCE = CLOUD_DISTANCE.updateMask(CLIP_MAX)
         #CLOUD_DISTANCE = CLOUD_DISTANCE.updateMask(CLOUD_MASK)
-        return img.addBands(CLOUD_DISTANCE)
+        return img.addBands(CLOUD_DISTANCE).rename('CLOUD_DISTANCE')
     return wrap
