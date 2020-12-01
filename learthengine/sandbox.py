@@ -22,7 +22,7 @@ kwargs = {
     'roi': yarsk,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
-    'max_clouddistance': 80,
+    'max_clouddistance': 800000,
     'reducer': ee.Reducer.median(), #ee.Reducer.intervalMean(10, 90),
     'target_years': [1986, 2002, 2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 2,
@@ -32,7 +32,7 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'MED2_YARSK_VIR',
+    'export_name': 'MED_YARSK_VIR',
     'lst_threshold': 5,
     'wv_method': 'NCEP',
     'mask_percentiles': False,
