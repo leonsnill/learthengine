@@ -32,7 +32,7 @@ kwargs = {
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'TEST_YARSK_VIR',
+    'export_name': 'FM_YARSK_VIR',
     'lst_threshold': 5,
     'wv_method': 'NCEP',
     'mask_percentiles': False,
