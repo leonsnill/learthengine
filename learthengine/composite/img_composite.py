@@ -231,10 +231,11 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
             # --------------------------------------------------
             imgCol_SR = imgCol_SR.map(composite.fun_add_doy_band)
             imgCol_SR = imgCol_SR.map(composite.fun_addyearband)
-            imgCol_SR = imgCol_SR.map(composite.fun_addcloudband(req_distance=10000))
+            imgCol_SR = imgCol_SR.map(composite.fun_addcloudband(req_distance=max_clouddistance))
 
             if buffer_clouds:
-                imgCol_SR = imgCol_SR.map(prepro.mask_cloudbuffer(min_distance=min_clouddistance))
+                imgCol_SR = imgCol_SR.map(prepro.mask_cloudbuffer(min_distance=min_clouddistance,
+                                                                  max_distance=max_clouddistance))
 
             # apply percentile masking (optional)
             if mask_percentiles:

@@ -22,7 +22,7 @@ kwargs = {
     'roi': yarsk,  # 38.4824, 8.7550, 39.0482, 9.2000 Addis
     'score': 'STM',
     'min_clouddistance': 10,
-    'max_clouddistance': 800000,
+    'max_clouddistance': 80,
     'reducer': ee.Reducer.median(), #ee.Reducer.intervalMean(10, 90),
     'target_years': [1986, 2002, 2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 2,
@@ -36,7 +36,7 @@ kwargs = {
     'lst_threshold': 5,
     'wv_method': 'NCEP',
     'mask_percentiles': False,
-    'buffer_clouds': True
+    'buffer_clouds': False
     #'epsg': 'EPSG:22293'
 }
 
