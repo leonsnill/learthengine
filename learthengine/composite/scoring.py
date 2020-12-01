@@ -92,7 +92,7 @@ def fun_addyearband(img):
 
 def fun_addcloudband(req_distance):
     def wrap(img):
-        CLOUD_MASK = img.mask()
+        CLOUD_MASK = img.mask().select('R')
         CLOUD_DISTANCE = CLOUD_MASK.Not() \
             .distance(ee.Kernel.euclidean(radius=req_distance, units='pixels')) \
             .rename('CLOUD_DISTANCE')
