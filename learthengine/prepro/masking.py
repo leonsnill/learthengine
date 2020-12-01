@@ -93,13 +93,11 @@ def mask_s2(img):
               .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
 
 
-def focal_mask(kernelsize=10):
+def focal_mask(kernelsize=1.5):
     def wrap(img):
-        kernel = ee.Kernel.square(kernelsize, 'pixels')
-        mask = img.mask()
-        smooth = ee.Kernel.circle(radius=1)
-        mask = mask.focal_max({'kernel': smooth, 'iterations': 2})
-        mask = mask.focal_min({'kernel': kernel, 'iterations': 2})
+        kernel = ee.Kernel.square(radius=kernelsize, units='pixels')
+        mask = img.mask().select('R')
+        mask = mask.focal_mode({'kernel': kernel, 'iterations': 1})
         return img.updateMask(mask).copyProperties({'source': img})\
                   .set('system:time_start', img.get('system:time_start'))
     return wrap

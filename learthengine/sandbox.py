@@ -12,7 +12,7 @@ yarsk = [67.927, 67.090, 68.303, 67.178]
 
 kwargs = {
     'sensor': 'LS',
-    'bands': ['CLOUD_DISTANCE'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
+    'bands': ['B', 'G', 'R', 'NIR'],  # ['B', 'G', 'R', 'NIR', 'SWIR1', 'SWIR2']  ['TCB', 'TCG', 'TCW']
     'pixel_resolution': 30,
     'cloud_cover': 50,
     'masks': ['cloud', 'cshadow', 'snow'],  # 'cloud', 'cshadow', 'snow'
@@ -27,16 +27,17 @@ kwargs = {
     'target_years': [2018],  # 1985, 1990, 1995, 2000, 2010, 2015, 2020
     'surr_years': 2,
     'target_doys': [166, 258],  # [16, 46, 75, 105, 136, 166, 197, 228, 258, 289, 319, 350]
-    'doy_range': 15,
+    'doy_range': 30,
     'doy_vs_year': 60,
     'exclude_slc_off': True,
     'export_option': 'Drive',
     'asset_path': "users/leonxnill/Addis/",
-    'export_name': 'CD_YARSK_VIR',
+    'export_name': 'TEST_YARSK_VIR',
     'lst_threshold': 5,
     'wv_method': 'NCEP',
     'mask_percentiles': False,
-    'buffer_clouds': True
+    'buffer_clouds': True,
+    'focal_mode': True
     #'epsg': 'EPSG:22293'
 }
 
