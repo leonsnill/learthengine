@@ -20,7 +20,7 @@ import numpy as np
 def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, masks=None, T_threshold=None,
                   T_omission=True, roi=None, score='STM', reducer=None, epsg=None, target_years=None, surr_years=0,
                   target_doys=None, doy_range=182, doy_vs_year=20, min_clouddistance=10, max_clouddistance=50,
-                  weight_doy=0.4, weight_year=0.4, weight_cloud=0.2, buffer_clouds=False, focal_mode=False, mask_percentiles=False,
+                  weight_doy=0.4, weight_year=0.4, weight_cloud=0.2, buffer_clouds=False, mask_percentiles=False,
                   exclude_slc_off=False, export_option="Drive", asset_path=None, export_name=None, lst_threshold=None,
                   wv_method="NCEP"):
     """
@@ -235,9 +235,6 @@ def img_composite(sensor='LS', bands=None, pixel_resolution=30, cloud_cover=70, 
 
             if buffer_clouds:
                 imgCol_SR = imgCol_SR.map(prepro.mask_cloudbuffer(min_distance=min_clouddistance))
-
-            if focal_mode:
-                imgCol_SR = imgCol_SR.map(prepro.focal_mask(kernelsize=1.5))
 
             # apply percentile masking (optional)
             if mask_percentiles:

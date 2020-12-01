@@ -36,8 +36,7 @@ kwargs = {
     'lst_threshold': 5,
     'wv_method': 'NCEP',
     'mask_percentiles': False,
-    'buffer_clouds': True,
-    'focal_mode': True
+    'buffer_clouds': True
     #'epsg': 'EPSG:22293'
 }
 
