@@ -121,6 +121,15 @@ def mask_percentiles(band_lwr='R', band_upr='B', lwr=ee.Image(1), upr=ee.Image(1
     return wrap
 
 
+def mask_cloudbuffer(min_distance):
+    def wrap(img):
+        cloud_distance = img.select('CLOUD_DISTANCE')
+        mask = cloud_distance.gte(ee.Image.constant(min_distance))
+        return img.updateMask(mask) \
+            .copyProperties(source=img).set('system:time_start', img.get('system:time_start'))
+    return wrap
+
+
 #################################################################################
 #https://github.com/gee-community/gee_tools
 # (c) Rodrigo Principe
