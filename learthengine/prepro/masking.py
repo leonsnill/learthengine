@@ -97,7 +97,7 @@ def focal_mask(kernelsize=1.5):
     def wrap(img):
         #kernel = ee.Kernel.square({'radius': kernelsize, 'units': 'pixels'})
         mask = img.mask().select('R')
-        mask = mask.focal_mode({'kernelType': 'square', 'radius': kernelsize, 'units': 'pixels', 'iterations': 1})
+        mask = mask.focal_mode({'kernelType': 'square', 'radius': ee.Number(kernelsize), 'units': 'pixels', 'iterations': ee.Number(1)})
         return img.updateMask(mask).copyProperties({'source': img})\
                   .set('system:time_start', img.get('system:time_start'))
     return wrap
