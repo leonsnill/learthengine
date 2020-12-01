@@ -121,7 +121,7 @@ def mask_percentiles(band_lwr='R', band_upr='B', lwr=ee.Image(1), upr=ee.Image(1
     return wrap
 
 
-def mask_cloudbuffer(min_distance, max_distance):
+def mask_cloudbuffer(min_distance):
     def wrap(img):
         cloud_distance = img.select('CLOUD_DISTANCE')
         mask = cloud_distance.gte(ee.Image.constant(min_distance))
